@@ -1,54 +1,106 @@
-# React + TypeScript + Vite
+# Deccan Turf Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a web application built using React, TypeScript, and Vite. It also integrates Firebase for backend services.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Before you begin, ensure you have the following installed on your system:
 
-## Expanding the ESLint configuration
+- [Node.js](https://nodejs.org/) (version 16 or higher recommended)
+- [npm](https://www.npmjs.com/) (comes with Node.js) or [yarn](https://yarnpkg.com/)
+- [JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) (required for firebase)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Installation
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd deccan-turf-web-app
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Set up Firebase:
+   - Create a `.env` file in the root directory.
+   - Add your Firebase configuration details:
+     ```env
+     VITE_FIREBASE_API_KEY=your-api-key
+     VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
+     VITE_FIREBASE_PROJECT_ID=your-project-id
+     VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+     VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+     VITE_FIREBASE_APP_ID=your-app-id
+     VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+     ```
+
+## Run/Build
+
+### Running the Development Server
+
+To start the development server, run:
+```bash
+npm run dev
+# or
+yarn dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+This will start the Vite development server. Open your browser and navigate to `http://localhost:5173` to view the app.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Building for Production
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+To build the application for production, run:
+```bash
+npm run build
+# or
+yarn build
 ```
+
+The production-ready files will be generated in the `dist` directory.
+
+### Previewing the Production Build
+
+To preview the production build locally, run:
+```bash
+npm run preview
+# or
+yarn preview
+```
+
+This will serve the files from the `dist` directory locally.
+
+## Running Firebase
+
+To run Firebase services locally, follow these steps:
+
+1. Install the Firebase CLI if you haven't already:
+   ```bash
+   npm install -g firebase-tools
+   ```
+
+2. Log in to your Firebase account:
+   ```bash
+   firebase login
+   ```
+
+3. Start the Firebase emulator suite for local development:
+   ```bash
+   firebase emulators:start
+   ```
+
+   This will start the local emulators for the selected Firebase services. You can access the emulator UI at `http://localhost:4000` (default port).
+
+4. To deploy your Firebase project to the cloud, run:
+   ```bash
+   firebase deploy
+   ```
+
+   Ensure you have the correct Firebase project selected before deploying.
+
+---
+
+For more details on the project setup and configuration, refer to the [Vite documentation](https://vitejs.dev/) and [Firebase documentation](https://firebase.google.com/docs).
