@@ -25,18 +25,12 @@ Before you begin, ensure you have the following installed on your system:
    yarn install
    ```
 
-3. Set up Firebase:
-   - Create a `.env` file in the root directory.
-   - Add your Firebase configuration details:
-     ```env
-     VITE_FIREBASE_API_KEY=your-api-key
-     VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
-     VITE_FIREBASE_PROJECT_ID=your-project-id
-     VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-     VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-     VITE_FIREBASE_APP_ID=your-app-id
-     VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
-     ```
+## Setting Up Firebase Environment Variables
+
+1. Obtain the Firebase secrets from the Google Group.
+2. Create a `.env` file in the root of the project directory.
+3. Copy the contents of `.env.example` into `.env`.
+4. Replace the placeholder values in `.env` with the actual Firebase secrets provided.
 
 ## Run/Build
 
