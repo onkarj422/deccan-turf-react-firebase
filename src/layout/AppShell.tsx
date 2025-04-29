@@ -1,9 +1,17 @@
-import { AppShell, Burger } from '@mantine/core';
+import { AppShell, Burger, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Outlet } from '@tanstack/react-router';
+import { Outlet, useNavigate } from '@tanstack/react-router';
+import { useLogin } from '@lib/firebase/auth/login';
 
 export default function Shell() {
     const [opened, { toggle }] = useDisclosure();
+    const { logout } = useLogin();
+    const navigate = useNavigate();
+
+    const handleSignOut = async () => {
+        await logout();
+        navigate({ to: '/login' });
+    };
 
     return (
         <AppShell
@@ -13,9 +21,11 @@ export default function Shell() {
                 breakpoint: 'sm',
                 collapsed: { mobile: !opened },
             }}
-            padding="md"
+            padding="sm"
             transitionDuration={200}
             transitionTimingFunction="ease"
+            w="100%"
+            h="100%"
         >
             <AppShell.Header p="sm" className='flex items-center'>
                 <Burger
@@ -26,9 +36,13 @@ export default function Shell() {
                 />
             </AppShell.Header>
 
-            <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+            <AppShell.Navbar p="md">
+                <Button fullWidth color="red" variant="light" onClick={handleSignOut}>
+                    Sign Out
+                </Button>
+            </AppShell.Navbar>
 
-            <AppShell.Main>
+            <AppShell.Main w='100%' h="100%" className='flex flex-col'>
                 <Outlet />
             </AppShell.Main>
         </AppShell>

@@ -15,6 +15,7 @@ import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
 import { Route as AppIndexImport } from './routes/app/index'
 import { Route as AppDashboardImport } from './routes/app/dashboard'
+import { Route as AppBookImport } from './routes/app/book'
 import { Route as AppAppImport } from './routes/app/app'
 
 // Create/Update Routes
@@ -40,6 +41,12 @@ const AppIndexRoute = AppIndexImport.update({
 const AppDashboardRoute = AppDashboardImport.update({
   id: '/app/dashboard',
   path: '/app/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AppBookRoute = AppBookImport.update({
+  id: '/app/book',
+  path: '/app/book',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,6 +81,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppImport
       parentRoute: typeof rootRoute
     }
+    '/app/book': {
+      id: '/app/book'
+      path: '/app/book'
+      fullPath: '/app/book'
+      preLoaderRoute: typeof AppBookImport
+      parentRoute: typeof rootRoute
+    }
     '/app/dashboard': {
       id: '/app/dashboard'
       path: '/app/dashboard'
@@ -97,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app/app': typeof AppAppRoute
+  '/app/book': typeof AppBookRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
 }
@@ -105,6 +120,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app/app': typeof AppAppRoute
+  '/app/book': typeof AppBookRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
 }
@@ -114,16 +130,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app/app': typeof AppAppRoute
+  '/app/book': typeof AppBookRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/': typeof AppIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/app/app' | '/app/dashboard' | '/app'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/app/app'
+    | '/app/book'
+    | '/app/dashboard'
+    | '/app'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/app/app' | '/app/dashboard' | '/app'
-  id: '__root__' | '/' | '/login' | '/app/app' | '/app/dashboard' | '/app/'
+  to: '/' | '/login' | '/app/app' | '/app/book' | '/app/dashboard' | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/app/app'
+    | '/app/book'
+    | '/app/dashboard'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 
@@ -131,6 +161,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   AppAppRoute: typeof AppAppRoute
+  AppBookRoute: typeof AppBookRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -139,6 +170,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   AppAppRoute: AppAppRoute,
+  AppBookRoute: AppBookRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppIndexRoute: AppIndexRoute,
 }
@@ -156,6 +188,7 @@ export const routeTree = rootRoute
         "/",
         "/login",
         "/app/app",
+        "/app/book",
         "/app/dashboard",
         "/app/"
       ]
@@ -167,7 +200,10 @@ export const routeTree = rootRoute
       "filePath": "login.ts"
     },
     "/app/app": {
-      "filePath": "app/app.tsx"
+      "filePath": "app/app.ts"
+    },
+    "/app/book": {
+      "filePath": "app/book.ts"
     },
     "/app/dashboard": {
       "filePath": "app/dashboard.ts"

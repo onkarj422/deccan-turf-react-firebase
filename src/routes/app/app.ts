@@ -1,7 +1,8 @@
 import { ProtectedLayout } from "@/layout";
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "../__root";
-import { dashboardRoutes } from "./dashboard";
+import { dashboardRoute } from "./dashboard";
+import { bookRoute } from "./book";
 
 export const appRoute = createRoute({
     path: '/app',
@@ -9,4 +10,4 @@ export const appRoute = createRoute({
     getParentRoute: () => rootRoute,
 })
 
-appRoute.addChildren([dashboardRoutes]);
+appRoute.addChildren([dashboardRoute, bookRoute]);

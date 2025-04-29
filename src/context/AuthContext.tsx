@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@lib/firebase";
 import Splash from "@/Splash";
+import { PageLoader } from "@/components/Loader";
 
 interface AuthContextType {
     user: User | null;
@@ -27,7 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     if (loading) {
-        return <Splash></Splash>
+        return <PageLoader />
     }
 
     return (

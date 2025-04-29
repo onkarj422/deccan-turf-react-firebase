@@ -1,4 +1,4 @@
-import { Button, Card, TextInput } from "@mantine/core";
+import { Card } from "@mantine/core";
 import GoogleLogo from '@assets/web_dark_rd_ctn.svg?react';
 import { useLogin } from "@lib/firebase/auth/login";
 import { useNavigate } from "@tanstack/react-router";
@@ -9,10 +9,10 @@ export default function Login() {
 
     const handleGoogleLogin = async () => {
         try {
-            await loginWithGoogle()
-            navigate({ to: '/app' })
+            await loginWithGoogle();
+            navigate({ to: '/app' });
         } catch (err: any) {
-            console.error(err.message)
+            console.error(err.message);
         }
     };
 

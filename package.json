@@ -20,6 +20,7 @@
     "@tanstack/react-router-devtools": "^1.116.0",
     "dayjs": "^1.11.13",
     "firebase": "^11.6.0",
+    "firebase-admin": "^13.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-preset-mantine": "^2.0.5",
