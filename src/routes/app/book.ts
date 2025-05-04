@@ -6,4 +6,7 @@ export const bookRoute = createRoute({
   path: '/book/$turfId',
   component: Booking,
   getParentRoute: () => appRoute,
+  staticData: {
+    title: 'Book a slot',
+  }
 })

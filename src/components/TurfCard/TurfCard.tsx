@@ -1,5 +1,7 @@
-import React from 'react';
-import { Card, Image, Text, Button, Group } from '@mantine/core';
+import { JSX } from 'react';
+import {
+    Card, Image, Text, Button, Group,
+} from '@mantine/core';
 import './TurfCard.css';
 
 interface TurfCardProps {
@@ -10,29 +12,61 @@ interface TurfCardProps {
     onBookNow: (turfId: string) => void;
 }
 
-const TurfCard: React.FC<TurfCardProps> = ({ name, description, pricePerHour, image, onBookNow }) => {
+function TurfCard({
+    name, description, pricePerHour, onBookNow,
+}: TurfCardProps): JSX.Element {
     return (
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Card.Section className='section' mb="md" withBorder>
-                {/* <Image src="https://i.imgur.com/ZL52Q2D.png" alt="Tesla Model S" /> */}
+        <Card
+            shadow="sm"
+            padding="lg"
+            radius="md"
+            withBorder
+        >
+            <Card.Section
+                className="section"
+                mb="md"
+                withBorder
+            >
+                <Image
+                    src="https://i.imgur.com/ZL52Q2D.png"
+                    alt="Tesla Model S"
+                />
             </Card.Section>
 
             <Group mb="md">
                 <div>
                     <Text fw={500}>{name}</Text>
-                    <Text fz="xs" c="dimmed">
+                    <Text
+                        fz="xs"
+                        c="dimmed"
+                    >
                         {description}
                     </Text>
                 </div>
             </Group>
 
-            <Card.Section className='section'>
-                <Group gap={30} justify='space-between' align='center'>
+            <Card.Section className="section">
+                <Group
+                    gap={30}
+                    justify="space-between"
+                    align="center"
+                >
                     <div>
-                        <Text fz="xl" fw={700} style={{ lineHeight: 1 }}>
-                            Rs.{pricePerHour}
+                        <Text
+                            fz="xl"
+                            fw={700}
+                            style={{ lineHeight: 1 }}
+                        >
+                            Rs.
+                            {pricePerHour}
                         </Text>
-                        <Text fz="sm" c="dimmed" fw={500} style={{ lineHeight: 1 }} mt={3}>
+                        <Text
+                            fz="sm"
+                            c="dimmed"
+                            fw={500}
+                            style={{ lineHeight: 1 }}
+                            mt={3}
+                        >
                             per hour
                         </Text>
                     </div>
@@ -40,7 +74,7 @@ const TurfCard: React.FC<TurfCardProps> = ({ name, description, pricePerHour, im
                     <Button
                         color="blue"
                         radius="md"
-                        onClick={onBookNow}
+                        onClick={() => onBookNow(name)}
                     >
                         Book Now
                     </Button>
@@ -48,6 +82,6 @@ const TurfCard: React.FC<TurfCardProps> = ({ name, description, pricePerHour, im
             </Card.Section>
         </Card>
     );
-};
+}
 
 export default TurfCard;
