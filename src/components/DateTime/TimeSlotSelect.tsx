@@ -5,9 +5,11 @@ import {
 import dayjs, { Dayjs } from 'dayjs';
 import { BookingByTimeslot } from '@/store/server/bookings/types';
 import { createTimeslotKey } from '@/lib/dates/utils';
+import TimeSlotRange from './TimeSlotRange';
 
 interface TimeSlotSelectProps {
-  selectedDate: Dayjs | string; // Selected date
+    selectedDate: Dayjs | string; // Selected date
+    selectedTimeSlots: Dayjs[]; // Selected time slots
     onChange: (blocks: Dayjs[]) => void;
     unavailableTimeslots?: BookingByTimeslot,
 }
@@ -19,6 +21,7 @@ const getHourBlocks = (selectedDate: dayjs.Dayjs) => Array.from({ length: 25 }, 
 
 export default function TimeSlotSelect({
     selectedDate: _selectedDate,
+    selectedTimeSlots,
     onChange,
     unavailableTimeslots,
 }: TimeSlotSelectProps) {
@@ -169,28 +172,10 @@ export default function TimeSlotSelect({
             </ScrollArea>
             {/* Show selected time range and duration */}
             {selection ? (
-                <Box
-                    mt={12}
-                    className="text-center flex flex-row items-center justify-center gap-2"
-                >
-                    <Text size="md">
-                        {hourBlocks[selection.start].format('h:mm A')}
-                        {' '}
-                        –
-                        {' '}
-                        {hourBlocks[selection.end + 1].format('h:mm A')}
-                    </Text>
-                    <Text
-                        size="sm"
-                        c="gray.6"
-                    >
-                        (
-                        {selection.end - selection.start + 1}
-                        {' '}
-                        hour
-                        {selection.end - selection.start + 1 > 1 ? 's' : ''}
-                        )
-                    </Text>
+                <Box className="flex flex-col items-center">
+                    <TimeSlotRange
+                        slots={selectedTimeSlots}
+                    />
                 </Box>
             ) : (
                 <Box

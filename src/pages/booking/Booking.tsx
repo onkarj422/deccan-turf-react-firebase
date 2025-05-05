@@ -1,17 +1,16 @@
-import { useParams } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import {
     Card, Title, Divider, Text, Button,
-    Group,
 } from '@mantine/core';
 import { useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { useFetchTurfs } from '@/store/server/turfs';
 import { PageLoader } from '@/components/Loader';
-import DateSelect from '@/components/DateSelect/DateSelect';
-import TimeSlotSelect from '@/components/DateSelect/TimeSlotSelect';
-import { Timestamp } from 'firebase/firestore';
+import DateSelect from '@/components/DateTime/DateSelect';
+import TimeSlotSelect from '@/components/DateTime/TimeSlotSelect';
 import { useBookingsFromTodayHash } from '@/store/server/bookings/hooks';
-import { createDateKey } from '@/lib/dates/utils';
+import { createDateKey, getTotalSlotHours } from '@/lib/dates/utils';
+import TimeSlotSummary from '@/components/DateTime/TimeSlotSummary';
 
 export default function Booking() {
     const { turfId } = useParams({ strict: false });
@@ -19,7 +18,8 @@ export default function Booking() {
         data: turfs, isLoading, isError, error,
     } = useFetchTurfs();
     const [selectedDate, setSelectedDate] = useState<string | Dayjs>(dayjs());
-    const [selectedTimeSlot, setSelectedTimeSlot] = useState<Dayjs[] | null>(null);
+    const [selectedTimeSlots, setSelectedTimeSlots] = useState<Dayjs[]>([]);
+    const navigate = useNavigate();
 
     // Fetch bookings starting from today
     const { bookingsByDateTimeslot, isLoading: isBookingsLoading } = useBookingsFromTodayHash();
@@ -40,27 +40,28 @@ export default function Booking() {
 
     // Handler for Book Now button
     const handleBookNow = () => {
-        if (!selectedTimeSlot || selectedTimeSlot.length === 0) {
-            console.log('No time slot selected');
+        if (!selectedTimeSlots || selectedTimeSlots.length === 0) {
+            console.alert('No time slot selected');
             return;
         }
         // Booking payload (see Booking interface)
-        const bookingPayload = {
-            advancePaid: 0, // Example, update as needed
-            cancellationReason: '',
-            createdAt: Timestamp.now(),
-
-            paymentId: '', // Example, update as needed
+        const bookingDetails = {
             slot: {
-                date: Timestamp.fromDate(dayjs(selectedDate).toDate()),
-                times: selectedTimeSlot,
+                date: dayjs(selectedDate),
+                times: selectedTimeSlots,
             },
-            totalAmount: turf.pricePerHour * selectedTimeSlot.length,
+            totalAmount: turf.pricePerHour * getTotalSlotHours(selectedTimeSlots),
             turfId: turf.turfId,
-            userId: 'userId', // Example, update as needed
-            status: 'confirmed',
         };
-        console.log('Booking payload:', bookingPayload);
+
+        navigate({
+            to: '/app/payment',
+            state: {
+                bookingDetails,
+                turf,
+            },
+            replace: true,
+        });
     };
 
     return (
@@ -79,65 +80,22 @@ export default function Booking() {
             >
                 <TimeSlotSelect
                     selectedDate={selectedDate}
-                    onChange={setSelectedTimeSlot}
+                    selectedTimeSlots={selectedTimeSlots}
+                    onChange={setSelectedTimeSlots}
                     unavailableTimeslots={bookingsByDateTimeslot[createDateKey(dayjs(selectedDate).toDate())]}
                 />
                 {/* Selected info display */}
                 <Divider my="xs" />
-                <Group
-                    gap={24}
-                    align="start"
-                    w="100%"
-                >
-                    <div className="flex flex-col items-center justify-center flex-grow-1">
-                        <Text
-                            size="xs"
-                            tt="uppercase"
-                            fw={300}
-                        >
-                            Time
-                        </Text>
-                        <Text
-                            size="lg"
-                            fw={500}
-                        >
-                            {selectedTimeSlot && selectedTimeSlot.length > 0
-                                ? `${selectedTimeSlot[0].format('hh:mm A')}`
-                                : 'Not selected'}
-                        </Text>
-                    </div>
-                    <Divider
-                        orientation="vertical"
-                        mx="xs"
-                        style={{ height: 32 }}
-                    />
-                    <div className="flex flex-col items-center flex-grow-1">
-                        <Text
-                            size="xs"
-                            tt="uppercase"
-                            fw={300}
-                        >
-                            Duration
-                        </Text>
-                        <Text
-                            size="lg"
-                            fw={500}
-                        >
-                            {selectedTimeSlot && selectedTimeSlot.length > 1
-                                ? `${selectedTimeSlot.length} hour(s)`
-                                : 'N/A'}
-                        </Text>
-                    </div>
-                </Group>
+                <TimeSlotSummary slots={selectedTimeSlots} />
             </Card>
             <div className="flex-grow-1" />
             <Text
                 size="lg"
-                fw={300}
+                fw={400}
                 className="text-center"
             >
-                Total Price - INR
-                {turf.pricePerHour * (selectedTimeSlot ? selectedTimeSlot.length : 1)}
+                Total Price - ₹&nbsp;
+                {turf.pricePerHour * (selectedTimeSlots ? selectedTimeSlots.length : 1)}
             </Text>
             <Divider />
             <Button
@@ -148,6 +106,7 @@ export default function Booking() {
                 color="lime"
                 c="white"
                 radius="md"
+                disabled={!selectedTimeSlots || selectedTimeSlots.length === 0}
                 onClick={handleBookNow}
             >
                 Book Now

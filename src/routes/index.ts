@@ -1,8 +1,19 @@
-import { createRoute, createRouter } from "@tanstack/react-router";
-import { Home } from "../pages/home";
-import { rootRoute } from "./__root";
-import { loginRoute } from "./login";
-import { appRoute } from "./app";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+    createRoute, createRouter,
+} from '@tanstack/react-router';
+import { Turf } from '@/lib/firebase/firestore/turfs';
+import { Home } from '../pages/home';
+import { rootRoute } from './__root';
+import { loginRoute } from './login';
+import { appRoute } from './app';
+
+declare module '@tanstack/react-router' {
+    interface HistoryState {
+        bookingDetails?: unknown;
+        turf?: Turf;
+    }
+}
 
 const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -10,13 +21,13 @@ const indexRoute = createRoute({
     component: Home,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, appRoute])
+const routeTree = rootRoute.addChildren([indexRoute, loginRoute, appRoute]);
 
 const router = createRouter({
     routeTree,
     context: {
         auth: undefined!,
-    }
-})
+    },
+});
 
 export { router, routeTree };

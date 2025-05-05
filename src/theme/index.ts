@@ -15,9 +15,17 @@ export const theme = createTheme({
         '3xl': '0 16px 32px 0 rgba(0,0,0,0.85)',
     },
     defaultRadius: 'md',
-    fontFamily: 'Roboto, sans-serif',
+    fontFamily: 'Inter Variable, sans-serif',
     headings: {
-        fontFamily: 'Roboto, sans-serif',
+        fontFamily: 'Inter Variable, sans-serif',
         fontWeight: 'semibold',
     },
+    lineHeights: {
+        xs: '1.4',
+        sm: '1.45',
+        md: '1.55',
+        lg: '1.6',
+        xl: '1.65',
+    },
+    fontSmoothing: true,
 });
