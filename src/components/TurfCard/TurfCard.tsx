@@ -1,6 +1,8 @@
 import { JSX } from 'react';
 import {
     Card, Image, Text, Button, Group,
+    Box,
+    Divider,
 } from '@mantine/core';
 import './TurfCard.css';
 
@@ -17,13 +19,11 @@ function TurfCard({
 }: TurfCardProps): JSX.Element {
     return (
         <Card
-            shadow="sm"
             padding="lg"
             radius="md"
             withBorder
         >
             <Card.Section
-                className="section"
                 mb="md"
                 withBorder
             >
@@ -32,54 +32,49 @@ function TurfCard({
                     alt="Tesla Model S"
                 />
             </Card.Section>
-
-            <Group mb="md">
+            <Box>
+                <Text fw={500}>{name}</Text>
+                <Text
+                    fz="xs"
+                    c="dimmed"
+                >
+                    {description}
+                </Text>
+            </Box>
+            <Divider my="lg" />
+            <Group
+                gap={30}
+                justify="space-between"
+                align="center"
+            >
                 <div>
-                    <Text fw={500}>{name}</Text>
                     <Text
-                        fz="xs"
-                        c="dimmed"
+                        fz="xl"
+                        fw={700}
+                        style={{ lineHeight: 1 }}
                     >
-                        {description}
+                        Rs.
+                        {pricePerHour}
+                    </Text>
+                    <Text
+                        fz="sm"
+                        c="dimmed"
+                        fw={500}
+                        style={{ lineHeight: 1 }}
+                        mt={3}
+                    >
+                        per hour
                     </Text>
                 </div>
-            </Group>
 
-            <Card.Section className="section">
-                <Group
-                    gap={30}
-                    justify="space-between"
-                    align="center"
+                <Button
+                    color="lime"
+                    radius="md"
+                    onClick={() => onBookNow(name)}
                 >
-                    <div>
-                        <Text
-                            fz="xl"
-                            fw={700}
-                            style={{ lineHeight: 1 }}
-                        >
-                            Rs.
-                            {pricePerHour}
-                        </Text>
-                        <Text
-                            fz="sm"
-                            c="dimmed"
-                            fw={500}
-                            style={{ lineHeight: 1 }}
-                            mt={3}
-                        >
-                            per hour
-                        </Text>
-                    </div>
-
-                    <Button
-                        color="blue"
-                        radius="md"
-                        onClick={() => onBookNow(name)}
-                    >
-                        Book Now
-                    </Button>
-                </Group>
-            </Card.Section>
+                    Book Now
+                </Button>
+            </Group>
         </Card>
     );
 }
