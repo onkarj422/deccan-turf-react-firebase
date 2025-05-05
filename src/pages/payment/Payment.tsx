@@ -1,20 +1,20 @@
 import TimeSlotRange from '@/components/DateTime/TimeSlotRange';
 import { getTotalSlotHours } from '@/lib/dates/utils';
+import { useBookingStore } from '@/store/local/bookingStore';
 import {
     Button, Card, Divider,
     Switch,
     Text,
     Title,
 } from '@mantine/core';
-import { useRouterState } from '@tanstack/react-router';
+import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 
 export default function Payment() {
-    const { location } = useRouterState();
-    const { bookingDetails, turf } = location.state;
     const [isAdvancedPayment, setIsAdvancedPayment] = useState(false);
+    const { bookingDetails, turf } = useBookingStore();
 
-    const slotDate = bookingDetails?.slot.date;
+    const slotDate = bookingDetails?.slot.date || dayjs();
     const slots = bookingDetails?.slot.times || [];
     const totalHours = getTotalSlotHours(slots);
     const minAdvance = turf ? turf.advanceAmount * totalHours : 0;
@@ -23,8 +23,8 @@ export default function Payment() {
         if (isAdvancedPayment) {
             return minAdvance;
         }
-        return bookingDetails.totalAmount;
-    }, [isAdvancedPayment, minAdvance, bookingDetails.totalAmount]);
+        return bookingDetails?.totalAmount;
+    }, [isAdvancedPayment, minAdvance, bookingDetails?.totalAmount]);
 
     if (!bookingDetails) {
         return (

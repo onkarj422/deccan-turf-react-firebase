@@ -11,6 +11,7 @@ import TimeSlotSelect from '@/components/DateTime/TimeSlotSelect';
 import { useBookingsFromTodayHash } from '@/store/server/bookings/hooks';
 import { createDateKey, getTotalSlotHours } from '@/lib/dates/utils';
 import TimeSlotSummary from '@/components/DateTime/TimeSlotSummary';
+import { useBookingStore } from '@/store/local/bookingStore';
 
 export default function Booking() {
     const { turfId } = useParams({ strict: false });
@@ -20,6 +21,7 @@ export default function Booking() {
     const [selectedDate, setSelectedDate] = useState<string | Dayjs>(dayjs());
     const [selectedTimeSlots, setSelectedTimeSlots] = useState<Dayjs[]>([]);
     const navigate = useNavigate();
+    const bookingStore = useBookingStore();
 
     // Fetch bookings starting from today
     const { bookingsByDateTimeslot, isLoading: isBookingsLoading } = useBookingsFromTodayHash();
@@ -41,7 +43,6 @@ export default function Booking() {
     // Handler for Book Now button
     const handleBookNow = () => {
         if (!selectedTimeSlots || selectedTimeSlots.length === 0) {
-            console.alert('No time slot selected');
             return;
         }
         // Booking payload (see Booking interface)
@@ -54,12 +55,11 @@ export default function Booking() {
             turfId: turf.turfId,
         };
 
+        bookingStore.setBookingDetails(bookingDetails);
+        bookingStore.setTurf(turf);
+
         navigate({
             to: '/app/payment',
-            state: {
-                bookingDetails,
-                turf,
-            },
             replace: true,
         });
     };
