@@ -7,11 +7,12 @@ import {
     getAllBookings,
     Booking,
 } from '@lib/firebase/firestore/bookings';
+import { FirestoreQueryOptions } from '@/lib/firebase/firestore/query-builder';
 
 // Fetch all bookings
-export const useFetchBookings = () => useQuery({
-    queryKey: ['bookings'],
-    queryFn: getAllBookings,
+export const useFetchBookings = (options: FirestoreQueryOptions = {}) => useQuery({
+    queryKey: ['bookings', options],
+    queryFn: () => getAllBookings(options),
 });
 
 // Fetch a single booking by ID

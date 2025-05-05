@@ -5,24 +5,23 @@ import {
     getDoc,
     deleteDoc,
     updateDoc,
-    query,
     getDocs,
     addDoc,
 } from 'firebase/firestore';
 
 import { db } from '../db';
+import { buildFirestoreQuery, FirestoreQueryOptions } from './query-builder';
 
 export interface Booking {
   advancePaid: number; // Amount paid in advance
   bookingId: string; // Unique identifier for the booking
   cancellationReason: string; // Reason for cancellation, if any
   createdAt: Timestamp; // Timestamp when the booking was created
-  date: Timestamp; // Date of the booking
   paymentId: string; // ID of the payment associated with the booking
-  slots: {
-    endTime: Timestamp; // End time of the slot
-    startTime: Timestamp; // Start time of the slot
-  }[]; // Array of slots associated with the booking
+  slot: {
+    times: Timestamp[]; // hours of the slot
+    date: Timestamp; // Date of the slot
+  }; // Array of slots associated with the booking
   totalAmount: number; // Total amount for the booking
   turfId: string; // ID of the turf associated with the booking
   userId: string; // ID of the user who made the booking
@@ -56,9 +55,9 @@ export const deleteBooking = async (bookingId: string): Promise<void> => {
     await deleteDoc(bookingDoc);
 };
 
-// Get all bookings
-export const getAllBookings = async (): Promise<Booking[]> => {
-    const q = query(bookingsCollection);
+// Get all bookings, with flexible filtering using FirestoreQueryOptions
+export const getAllBookings = async (options: FirestoreQueryOptions = {}): Promise<Booking[]> => {
+    const q = buildFirestoreQuery(bookingsCollection, options);
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map((docItem) => ({ ...docItem.data(), bookingId: docItem.id } as Booking));
 };

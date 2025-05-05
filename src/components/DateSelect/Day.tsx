@@ -1,24 +1,32 @@
 import { Card } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
-import { MouseEventHandler } from 'react';
+import { MouseEventHandler, useMemo } from 'react';
 
 interface DayProps {
     date: string | Dayjs; // Optional selected date
     onClick?: MouseEventHandler<HTMLDivElement>; // Optional onClick handler
     selected?: boolean; // Optional selected date
+    disabled?: boolean; // Optional disabled date
 }
 
-export default function Day({ date, onClick, selected }: DayProps) {
+export default function Day({
+    date, onClick, selected, disabled,
+}: DayProps) {
     const dayjsDate = dayjs(date);
     const monthDay = dayjsDate.format('DD');
     const weekDay = dayjsDate.format('ddd');
+    const bg = useMemo(() => {
+        if (selected) return 'lime';
+        if (disabled) return 'grey.6';
+        return 'transparent';
+    }, [selected, disabled]);
     return (
         <Card
             w="4rem"
             h="4rem"
             p="xs"
             withBorder
-            bg={selected ? 'lime' : 'transparent'}
+            bg={bg}
             variant="light" // Use outlined variant for better visibility
             className="flex items-center justify-center cursor-pointer"
             onClick={onClick}

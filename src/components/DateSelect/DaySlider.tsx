@@ -2,6 +2,8 @@ import { ScrollArea, Group } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useMemo } from 'react';
+import { createDateKey } from '@/lib/dates/utils';
+import { DateKey } from '@/store/server/bookings/types';
 import Day from './Day';
 
 dayjs.extend(isSameOrBefore);
@@ -10,9 +12,12 @@ interface WeekProps {
     month: number; // dayjs month format (0-11)
     selectedDate: string | Dayjs; // Optional selected date
     onChangeDate: (date: string | dayjs.Dayjs) => void; // Optional onClick handler
+    unavailableDates?: Record<DateKey, boolean>; // Optional unavailable dates
 }
 
-export default function DaySlider({ month, onChangeDate, selectedDate }: WeekProps) {
+export default function DaySlider({
+    month, onChangeDate, selectedDate, unavailableDates,
+}: WeekProps) {
     const today = dayjs();
     const currentMonth = today.month();
     const currentYear = today.year();
@@ -54,6 +59,7 @@ export default function DaySlider({ month, onChangeDate, selectedDate }: WeekPro
                             date={d}
                             onClick={() => onChangeDate(d)}
                             selected={isSelected}
+                            disabled={unavailableDates && unavailableDates[createDateKey(d.toDate())]}
                         />
                     );
                 })}
@@ -61,3 +67,7 @@ export default function DaySlider({ month, onChangeDate, selectedDate }: WeekPro
         </ScrollArea>
     );
 }
+
+DaySlider.defaultProps = {
+    unavailableDates: {}, // Default to empty object
+};

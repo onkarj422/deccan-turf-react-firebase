@@ -1,8 +1,8 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
 import { setLogLevel } from 'firebase/firestore';
 
-setLogLevel('debug');
+// setLogLevel('debug');
 
 // Your web app's Firebase configuration
 const firebaseConfig = {

@@ -2,17 +2,20 @@ import { ActionIcon, Card, Group } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { useState } from 'react';
+import { DateKey } from '@/store/server/bookings/types';
 import DaySlider from './DaySlider';
 import Month from './Month';
 
 interface DateSelectProps {
     selectedDate: string | Dayjs; // Optional selected date
     onChangeDate: (date: string | Dayjs) => void; // Optional onClick handler
+    unavailableDates?: Record<DateKey, boolean>; // Optional unavailable dates
 }
 
 export default function DateSelect({
     selectedDate,
     onChangeDate,
+    unavailableDates,
 }: DateSelectProps) {
     const [selectedDateInernal, setSelectedDateInternal] = useState<Dayjs>(dayjs(selectedDate));
 
@@ -73,7 +76,12 @@ export default function DateSelect({
                 month={dayjs(selectedDateInernal).month()}
                 onChangeDate={onChangeDate}
                 selectedDate={selectedDate}
+                unavailableDates={unavailableDates}
             />
         </Card>
     );
 }
+
+DateSelect.defaultProps = {
+    unavailableDates: {}, // Default to empty object
+};

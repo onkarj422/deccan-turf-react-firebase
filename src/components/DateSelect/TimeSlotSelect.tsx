@@ -3,10 +3,13 @@ import {
     Group, ScrollArea, Box, Text,
 } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
+import { BookingByTimeslot } from '@/store/server/bookings/types';
+import { createTimeslotKey } from '@/lib/dates/utils';
 
 interface TimeSlotSelectProps {
   selectedDate: Dayjs | string; // Selected date
-  onChange: (range: { start: Dayjs; end: Dayjs }) => void;
+    onChange: (blocks: Dayjs[]) => void;
+    unavailableTimeslots?: BookingByTimeslot,
 }
 
 const BLOCK_WIDTH = 60;
@@ -17,45 +20,74 @@ const getHourBlocks = (selectedDate: dayjs.Dayjs) => Array.from({ length: 25 }, 
 export default function TimeSlotSelect({
     selectedDate: _selectedDate,
     onChange,
+    unavailableTimeslots,
 }: TimeSlotSelectProps) {
     const selectedDate = dayjs(_selectedDate);
     const hourBlocks = getHourBlocks(selectedDate);
     const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
-
-    const handleLimeBlockClick = (idx: number) => {
-        if (!selection) {
-            setSelection({ start: idx, end: idx });
-            if (onChange) {
-                onChange({ start: hourBlocks[idx], end: hourBlocks[idx + 1] });
-            }
-            return;
-        }
-        // If clicked block is already in selection, reset to that block only
-        if (idx >= selection.start && idx <= selection.end) {
-            setSelection({ start: idx, end: idx });
-            if (onChange) {
-                onChange({ start: hourBlocks[idx], end: hourBlocks[idx + 1] });
-            }
-            return;
-        }
-        // Select all blocks in between (inclusive)
-        const newStart = Math.min(selection.start, idx);
-        const newEnd = Math.max(selection.end, idx);
-        setSelection({ start: newStart, end: newEnd });
-        if (onChange) {
-            onChange({ start: hourBlocks[newStart], end: hourBlocks[newEnd + 1] });
-        }
-    };
 
     const isBlockSelected = (idx: number) => {
         if (!selection) return false;
         return idx >= selection.start && idx <= selection.end;
     };
 
+    const isBlockUnavailable = (idx: number) => {
+        if (!unavailableTimeslots) return false;
+        const bookings = unavailableTimeslots[createTimeslotKey(hourBlocks[idx])];
+        return bookings?.length > 0;
+    };
+
+    const handleBlockClick = (idx: number) => {
+        if (isBlockUnavailable(idx)) return;
+
+        if (!selection) {
+            setSelection({ start: idx, end: idx });
+            if (onChange) {
+                onChange([hourBlocks[idx]]);
+            }
+            return;
+        }
+
+        // If clicked block is already in selection, or before current start, reset to that block only
+        if ((idx >= selection.start && idx <= selection.end) || idx < selection.start) {
+            setSelection({ start: idx, end: idx });
+            if (onChange) {
+                onChange([hourBlocks[idx]]);
+            }
+            return;
+        }
+
+        // If clicked block is after current end
+        if (idx > selection.end) {
+            // Check if all blocks between current end+1 and idx are available
+            const hasUnavailable = Array.from({ length: idx - selection.end }, (_, i) => selection.end + 1 + i)
+                .some((i) => isBlockUnavailable(i));
+            if (hasUnavailable) {
+                setSelection({ start: idx, end: idx });
+                if (onChange) {
+                    onChange([hourBlocks[idx]]);
+                }
+                return;
+            }
+            // Select all blocks from start to idx
+            setSelection({ start: selection.start, end: idx });
+            if (onChange) {
+                onChange(hourBlocks.slice(selection.start, idx + 1));
+            }
+        }
+    };
+
+    const getBlockBg = (idx: number) => {
+        if (isBlockUnavailable(idx)) {
+            return 'gray.4';
+        }
+        return isBlockSelected(idx) ? 'lime' : 'lime.2';
+    };
+
     return (
         <Box>
             {/* Legend for slot status aligned right */}
-            <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box className="flex justify-end">
                 <Group
                     mb={8}
                     gap={16}
@@ -70,7 +102,7 @@ export default function TimeSlotSelect({
                             bg="lime.2"
                             style={{ borderRadius: '50%' }}
                         />
-                        <span style={{ fontSize: 12 }}>Available</span>
+                        <Text size="xs">Available</Text>
                     </Group>
                     <Group
                         gap={4}
@@ -82,7 +114,7 @@ export default function TimeSlotSelect({
                             bg="gray.4"
                             style={{ borderRadius: '50%' }}
                         />
-                        <span style={{ fontSize: 12 }}>Booked</span>
+                        <Text size="xs">Booked</Text>
                     </Group>
                 </Group>
             </Box>
@@ -104,11 +136,12 @@ export default function TimeSlotSelect({
                     {hourBlocks.slice(0, -1).map((h, idx) => (
                         <Box
                             key={`row1-${h.valueOf()}`}
+                            id={`block-${h.format('hh a')}`}
                             w={BLOCK_WIDTH}
                             h={40}
-                            bg={isBlockSelected(idx) ? 'lime' : 'lime.2'}
-                            className="cursor-pointer"
-                            onClick={() => handleLimeBlockClick(idx)}
+                            bg={getBlockBg(idx)}
+                            className={`${isBlockUnavailable(idx) ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}`}
+                            onClick={() => handleBlockClick(idx)}
                         />
                     ))}
                 </Group>
@@ -128,7 +161,7 @@ export default function TimeSlotSelect({
                                 style={{ color: 'var(--mantine-color-gray-6)' }}
                                 className="font-light text-sm/3 uppercase"
                             >
-                                {h.format('a')}
+                                {h.format('A')}
                             </div>
                         </Box>
                     ))}
@@ -171,3 +204,7 @@ export default function TimeSlotSelect({
         </Box>
     );
 }
+
+TimeSlotSelect.defaultProps = {
+    unavailableTimeslots: {},
+};

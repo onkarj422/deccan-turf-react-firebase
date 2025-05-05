@@ -10,6 +10,8 @@ import { PageLoader } from '@/components/Loader';
 import DateSelect from '@/components/DateSelect/DateSelect';
 import TimeSlotSelect from '@/components/DateSelect/TimeSlotSelect';
 import { Timestamp } from 'firebase/firestore';
+import { useBookingsFromTodayHash } from '@/store/server/bookings/hooks';
+import { createDateKey } from '@/lib/dates/utils';
 
 export default function Booking() {
     const { turfId } = useParams({ strict: false });
@@ -17,9 +19,12 @@ export default function Booking() {
         data: turfs, isLoading, isError, error,
     } = useFetchTurfs();
     const [selectedDate, setSelectedDate] = useState<string | Dayjs>(dayjs());
-    const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: Dayjs; end: Dayjs } | null>(null);
+    const [selectedTimeSlot, setSelectedTimeSlot] = useState<Dayjs[] | null>(null);
 
-    if (isLoading) return <PageLoader />;
+    // Fetch bookings starting from today
+    const { bookingsByDateTimeslot, isLoading: isBookingsLoading } = useBookingsFromTodayHash();
+
+    if (isLoading || isBookingsLoading) return <PageLoader />;
     if (isError) {
         return (
             <div>
@@ -35,7 +40,7 @@ export default function Booking() {
 
     // Handler for Book Now button
     const handleBookNow = () => {
-        if (!selectedTimeSlot) {
+        if (!selectedTimeSlot || selectedTimeSlot.length === 0) {
             console.log('No time slot selected');
             return;
         }
@@ -44,35 +49,18 @@ export default function Booking() {
             advancePaid: 0, // Example, update as needed
             cancellationReason: '',
             createdAt: Timestamp.now(),
-            date: Timestamp.fromDate(dayjs(selectedDate).toDate()),
+
             paymentId: '', // Example, update as needed
-            slots: [
-                {
-                    startTime: Timestamp.fromDate(selectedTimeSlot.start.toDate()),
-                    endTime: Timestamp.fromDate(selectedTimeSlot.end.toDate()),
-                },
-            ],
-            totalAmount: turf.pricePerHour * selectedTimeSlot.end.diff(selectedTimeSlot.start, 'hour'),
+            slot: {
+                date: Timestamp.fromDate(dayjs(selectedDate).toDate()),
+                times: selectedTimeSlot,
+            },
+            totalAmount: turf.pricePerHour * selectedTimeSlot.length,
             turfId: turf.turfId,
             userId: 'userId', // Example, update as needed
             status: 'confirmed',
         };
-        // Slot payload (see Slot interface)
-        const slotPayload = {
-            booked: [
-                {
-                    bookingId: 'bookingId', // Example, update as needed
-                    startTime: Timestamp.fromDate(selectedTimeSlot.start.toDate()),
-                    endTime: Timestamp.fromDate(selectedTimeSlot.end.toDate()),
-                    userId: 'userId', // Example, update as needed
-                },
-            ],
-            createdAt: Timestamp.now(),
-            date: Timestamp.fromDate(dayjs(selectedDate).toDate()),
-            turfId: turf.turfId,
-        };
         console.log('Booking payload:', bookingPayload);
-        console.log('Slot payload:', slotPayload);
     };
 
     return (
@@ -92,6 +80,7 @@ export default function Booking() {
                 <TimeSlotSelect
                     selectedDate={selectedDate}
                     onChange={setSelectedTimeSlot}
+                    unavailableTimeslots={bookingsByDateTimeslot[createDateKey(dayjs(selectedDate).toDate())]}
                 />
                 {/* Selected info display */}
                 <Divider my="xs" />
@@ -112,8 +101,8 @@ export default function Booking() {
                             size="lg"
                             fw={500}
                         >
-                            {selectedTimeSlot
-                                ? `${selectedTimeSlot.start.format('hh:mm A')}`
+                            {selectedTimeSlot && selectedTimeSlot.length > 0
+                                ? `${selectedTimeSlot[0].format('hh:mm A')}`
                                 : 'Not selected'}
                         </Text>
                     </div>
@@ -134,8 +123,8 @@ export default function Booking() {
                             size="lg"
                             fw={500}
                         >
-                            {selectedTimeSlot
-                                ? `${selectedTimeSlot.end.diff(selectedTimeSlot.start, 'hour')} hour(s)`
+                            {selectedTimeSlot && selectedTimeSlot.length > 1
+                                ? `${selectedTimeSlot.length} hour(s)`
                                 : 'N/A'}
                         </Text>
                     </div>
@@ -148,9 +137,9 @@ export default function Booking() {
                 className="text-center"
             >
                 Total Price - INR
-                {turf.pricePerHour}
+                {turf.pricePerHour * (selectedTimeSlot ? selectedTimeSlot.length : 1)}
             </Text>
-            <Divider my="xs" />
+            <Divider />
             <Button
                 className="w-full"
                 tt="uppercase"
