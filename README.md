@@ -27,7 +27,7 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Setting Up Firebase Environment Variables
 
-1. Obtain the Firebase secrets from the Google Group.
+1. Obtain the Firebase secrets from the [Google Group](https://groups.google.com/g/deccan-turf).
 2. Create a `.env` file in the root of the project directory.
 3. Copy the contents of `.env.example` into `.env`.
 4. Replace the placeholder values in `.env` with the actual Firebase secrets provided.
