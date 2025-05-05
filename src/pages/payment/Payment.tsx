@@ -7,6 +7,7 @@ import {
     Text,
     Title,
 } from '@mantine/core';
+import { Navigate } from '@tanstack/react-router';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 
@@ -28,29 +29,19 @@ export default function Payment() {
 
     if (!bookingDetails) {
         return (
-            <div className="flex flex-col grow h-full w-full gap-4">
-                <Title size="h3">Error</Title>
-                <Text
-                    size="lg"
-                    fw={500}
-                >
-                    No booking details found.
-                </Text>
-            </div>
+            <Navigate
+                to="/"
+                replace
+            />
         );
     }
 
     if (!turf) {
         return (
-            <div className="flex flex-col grow h-full w-full gap-4">
-                <Title size="h3">Error</Title>
-                <Text
-                    size="lg"
-                    fw={500}
-                >
-                    No turf found for this booking.
-                </Text>
-            </div>
+            <Navigate
+                to="/"
+                replace
+            />
         );
     }
 
