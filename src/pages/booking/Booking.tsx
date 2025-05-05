@@ -1,6 +1,6 @@
 import { useParams } from '@tanstack/react-router';
 import {
-    Card, Title, Divider, Box, Text, Button,
+    Card, Title, Divider, Text, Button,
     Group,
 } from '@mantine/core';
 import { useState } from 'react';
@@ -9,6 +9,7 @@ import { useFetchTurfs } from '@/store/server/turfs';
 import { PageLoader } from '@/components/Loader';
 import DateSelect from '@/components/DateSelect/DateSelect';
 import TimeSlotSelect from '@/components/DateSelect/TimeSlotSelect';
+import { Timestamp } from 'firebase/firestore';
 
 export default function Booking() {
     const { turfId } = useParams({ strict: false });
@@ -32,6 +33,48 @@ export default function Booking() {
 
     if (!turf) return <div>Turf not found</div>;
 
+    // Handler for Book Now button
+    const handleBookNow = () => {
+        if (!selectedTimeSlot) {
+            console.log('No time slot selected');
+            return;
+        }
+        // Booking payload (see Booking interface)
+        const bookingPayload = {
+            advancePaid: 0, // Example, update as needed
+            cancellationReason: '',
+            createdAt: Timestamp.now(),
+            date: Timestamp.fromDate(dayjs(selectedDate).toDate()),
+            paymentId: '', // Example, update as needed
+            slots: [
+                {
+                    startTime: Timestamp.fromDate(selectedTimeSlot.start.toDate()),
+                    endTime: Timestamp.fromDate(selectedTimeSlot.end.toDate()),
+                },
+            ],
+            totalAmount: turf.pricePerHour * selectedTimeSlot.end.diff(selectedTimeSlot.start, 'hour'),
+            turfId: turf.turfId,
+            userId: 'userId', // Example, update as needed
+            status: 'confirmed',
+        };
+        // Slot payload (see Slot interface)
+        const slotPayload = {
+            booked: [
+                {
+                    bookingId: 'bookingId', // Example, update as needed
+                    startTime: Timestamp.fromDate(selectedTimeSlot.start.toDate()),
+                    endTime: Timestamp.fromDate(selectedTimeSlot.end.toDate()),
+                    userId: 'userId', // Example, update as needed
+                },
+            ],
+            createdAt: Timestamp.now(),
+            date: Timestamp.fromDate(dayjs(selectedDate).toDate()),
+            turfId: turf.turfId,
+        };
+        console.log('Booking payload:', bookingPayload);
+        console.log('Slot payload:', slotPayload);
+    };
+
     return (
         <div className="flex flex-col grow h-full w-full gap-4">
             <Title size="h3">Select Date</Title>
@@ -52,42 +95,25 @@ export default function Booking() {
                 />
                 {/* Selected info display */}
                 <Divider my="xs" />
-                <Box className="text-center">
-                    <Text
-                        size="xs"
-                        tt="uppercase"
-                        fw={300}
-                        className="mb-2"
-                    >
-                        Date
-                    </Text>
-                    <Text
-                        size="lg"
-                        tt="uppercase"
-                        fw={500}
-                    >
-                        {dayjs(selectedDate).format('DD MMM YYYY')}
-                    </Text>
-                </Box>
-                <Divider my="xs" />
                 <Group
                     gap={24}
                     align="start"
+                    w="100%"
                 >
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center justify-center flex-grow-1">
                         <Text
                             size="xs"
                             tt="uppercase"
                             fw={300}
                         >
-                            Time Slot
+                            Time
                         </Text>
                         <Text
                             size="lg"
                             fw={500}
                         >
                             {selectedTimeSlot
-                                ? `${selectedTimeSlot.start.format('hh:mm A')} - ${selectedTimeSlot.end.format('hh:mm A')}`
+                                ? `${selectedTimeSlot.start.format('hh:mm A')}`
                                 : 'Not selected'}
                         </Text>
                     </div>
@@ -96,7 +122,7 @@ export default function Booking() {
                         mx="xs"
                         style={{ height: 32 }}
                     />
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center flex-grow-1">
                         <Text
                             size="xs"
                             tt="uppercase"
@@ -133,6 +159,7 @@ export default function Booking() {
                 color="lime"
                 c="white"
                 radius="md"
+                onClick={handleBookNow}
             >
                 Book Now
             </Button>

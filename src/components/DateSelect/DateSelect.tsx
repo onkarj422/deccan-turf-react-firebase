@@ -1,9 +1,9 @@
-import { ActionIcon, Card, Group } from "@mantine/core";
-import Month from "./Month";
-import dayjs, { Dayjs } from "dayjs";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import DaySlider from "./DaySlider";
-import { useState } from "react";
+import { ActionIcon, Card, Group } from '@mantine/core';
+import dayjs, { Dayjs } from 'dayjs';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { useState } from 'react';
+import DaySlider from './DaySlider';
+import Month from './Month';
 
 interface DateSelectProps {
     selectedDate: string | Dayjs; // Optional selected date
@@ -12,7 +12,7 @@ interface DateSelectProps {
 
 export default function DateSelect({
     selectedDate,
-    onChangeDate
+    onChangeDate,
 }: DateSelectProps) {
     const [selectedDateInernal, setSelectedDateInternal] = useState<Dayjs>(dayjs(selectedDate));
 
@@ -32,25 +32,48 @@ export default function DateSelect({
     };
 
     return (
-        <Card withBorder radius="md" className="flex flex-col gap-4 p-2">
-            <Group align="center" justify="space-between" className="w-full">
+        <Card
+            withBorder
+            radius="md"
+            className="flex flex-col gap-4 p-2"
+        >
+            <Group
+                align="center"
+                justify="space-between"
+                className="w-full"
+            >
                 <Month selectedDate={selectedDateInernal} />
-                <Group align="center" gap="xs">
-                    <ActionIcon onClick={handlePrevMonth} color="lime.6" size="lg">
+                <Group
+                    align="center"
+                    gap="xs"
+                >
+                    <ActionIcon
+                        onClick={handlePrevMonth}
+                        color="lime.6"
+                        size="lg"
+                    >
                         <IconChevronLeft
                             size="30"
-                            color={'white'}
+                            color="white"
                         />
                     </ActionIcon>
-                    <ActionIcon onClick={handleNextMonth} color="lime.6" size="lg">
+                    <ActionIcon
+                        onClick={handleNextMonth}
+                        color="lime.6"
+                        size="lg"
+                    >
                         <IconChevronRight
                             size="30"
-                            color={'white'}
+                            color="white"
                         />
                     </ActionIcon>
                 </Group>
             </Group>
-            <DaySlider month={dayjs(selectedDateInernal).month()} onChangeDate={onChangeDate} selectedDate={selectedDate} />
+            <DaySlider
+                month={dayjs(selectedDateInernal).month()}
+                onChangeDate={onChangeDate}
+                selectedDate={selectedDate}
+            />
         </Card>
-    )
+    );
 }

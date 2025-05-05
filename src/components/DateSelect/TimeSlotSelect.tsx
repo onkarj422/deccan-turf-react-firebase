@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Group, ScrollArea, Box } from '@mantine/core';
+import {
+    Group, ScrollArea, Box, Text,
+} from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
 
 interface TimeSlotSelectProps {
@@ -87,7 +89,7 @@ export default function TimeSlotSelect({
             <ScrollArea
                 type="auto"
                 scrollbarSize={0}
-                style={{ width: '100%' }}
+                className="w-full mb-4"
             >
                 {/* First row: centered with margin on both sides */}
                 <Group
@@ -101,7 +103,7 @@ export default function TimeSlotSelect({
                 >
                     {hourBlocks.slice(0, -1).map((h, idx) => (
                         <Box
-                            key={`row1-${h.format('HH:mm')}`}
+                            key={`row1-${h.valueOf()}`}
                             w={BLOCK_WIDTH}
                             h={40}
                             bg={isBlockSelected(idx) ? 'lime' : 'lime.2'}
@@ -114,11 +116,10 @@ export default function TimeSlotSelect({
                 <Group
                     wrap="nowrap"
                     gap={BLOCK_GAP}
-                    style={{ marginLeft: 0 }}
                 >
                     {hourBlocks.map((h) => (
                         <Box
-                            key={`row2-${h.format('HH:mm')}`}
+                            key={`row2-${h.valueOf()}`}
                             w={BLOCK_WIDTH}
                             className="flex flex-col items-center justify-center"
                         >
@@ -134,25 +135,37 @@ export default function TimeSlotSelect({
                 </Group>
             </ScrollArea>
             {/* Show selected time range and duration */}
-            {selection && (
+            {selection ? (
                 <Box
                     mt={12}
-                    style={{ textAlign: 'center' }}
+                    className="text-center flex flex-row items-center justify-center gap-2"
                 >
-                    <strong>
+                    <Text size="md">
                         {hourBlocks[selection.start].format('h:mm A')}
                         {' '}
                         –
+                        {' '}
                         {hourBlocks[selection.end + 1].format('h:mm A')}
-                    </strong>
-                    <span style={{ marginLeft: 8, color: '#888', fontSize: 14 }}>
+                    </Text>
+                    <Text
+                        size="sm"
+                        c="gray.6"
+                    >
                         (
                         {selection.end - selection.start + 1}
                         {' '}
                         hour
                         {selection.end - selection.start + 1 > 1 ? 's' : ''}
                         )
-                    </span>
+                    </Text>
+                </Box>
+            ) : (
+                <Box
+                    mt={12}
+                    className="text-center"
+                    c="gray.6"
+                >
+                    Select a time slot
                 </Box>
             )}
         </Box>
