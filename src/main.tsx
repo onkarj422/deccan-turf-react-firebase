@@ -33,6 +33,7 @@ function RouterAuthWrapper() {
         <RouterProvider
             router={router}
             context={{ auth }}
+            defaultViewTransition
         />
     );
 }

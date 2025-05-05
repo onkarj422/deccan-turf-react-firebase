@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 
 export default function Payment() {
     const { location } = useRouterState();
-    const { bookingDetails, turf } = location.state || {};
+    const { bookingDetails, turf } = location.state;
     const [isAdvancedPayment, setIsAdvancedPayment] = useState(false);
 
     const slotDate = bookingDetails?.slot.date;
