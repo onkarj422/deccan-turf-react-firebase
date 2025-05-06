@@ -18,5 +18,5 @@ export const getStartAndEndHours = (slots: Dayjs[]) => {
 export const getTotalSlotHours = (slots: Dayjs[]) => {
     if (!slots || slots.length === 0) return 0;
     const [startHour, endHour] = getStartAndEndHours(slots);
-    return endHour.hour() - startHour.hour();
+    return endHour.diff(startHour, 'hour');
 };
