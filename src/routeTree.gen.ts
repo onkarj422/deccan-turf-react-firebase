@@ -13,9 +13,9 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
-import { Route as AppIndexImport } from './routes/app/index'
 import { Route as AppPaymentImport } from './routes/app/payment'
 import { Route as AppDashboardImport } from './routes/app/dashboard'
+import { Route as AppConfirmationImport } from './routes/app/confirmation'
 import { Route as AppBookImport } from './routes/app/book'
 import { Route as AppAppImport } from './routes/app/app'
 
@@ -33,12 +33,6 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AppIndexRoute = AppIndexImport.update({
-  id: '/app/',
-  path: '/app/',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AppPaymentRoute = AppPaymentImport.update({
   id: '/app/payment',
   path: '/app/payment',
@@ -48,6 +42,12 @@ const AppPaymentRoute = AppPaymentImport.update({
 const AppDashboardRoute = AppDashboardImport.update({
   id: '/app/dashboard',
   path: '/app/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AppConfirmationRoute = AppConfirmationImport.update({
+  id: '/app/confirmation',
+  path: '/app/confirmation',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBookImport
       parentRoute: typeof rootRoute
     }
+    '/app/confirmation': {
+      id: '/app/confirmation'
+      path: '/app/confirmation'
+      fullPath: '/app/confirmation'
+      preLoaderRoute: typeof AppConfirmationImport
+      parentRoute: typeof rootRoute
+    }
     '/app/dashboard': {
       id: '/app/dashboard'
       path: '/app/dashboard'
@@ -109,13 +116,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPaymentImport
       parentRoute: typeof rootRoute
     }
-    '/app/': {
-      id: '/app/'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppIndexImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -126,9 +126,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/app': typeof AppAppRoute
   '/app/book': typeof AppBookRoute
+  '/app/confirmation': typeof AppConfirmationRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/payment': typeof AppPaymentRoute
-  '/app': typeof AppIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -136,9 +136,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/app/app': typeof AppAppRoute
   '/app/book': typeof AppBookRoute
+  '/app/confirmation': typeof AppConfirmationRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/payment': typeof AppPaymentRoute
-  '/app': typeof AppIndexRoute
 }
 
 export interface FileRoutesById {
@@ -147,9 +147,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/app': typeof AppAppRoute
   '/app/book': typeof AppBookRoute
+  '/app/confirmation': typeof AppConfirmationRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/payment': typeof AppPaymentRoute
-  '/app/': typeof AppIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -159,27 +159,27 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/app'
     | '/app/book'
+    | '/app/confirmation'
     | '/app/dashboard'
     | '/app/payment'
-    | '/app'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/app/app'
     | '/app/book'
+    | '/app/confirmation'
     | '/app/dashboard'
     | '/app/payment'
-    | '/app'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/app/app'
     | '/app/book'
+    | '/app/confirmation'
     | '/app/dashboard'
     | '/app/payment'
-    | '/app/'
   fileRoutesById: FileRoutesById
 }
 
@@ -188,9 +188,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   AppAppRoute: typeof AppAppRoute
   AppBookRoute: typeof AppBookRoute
+  AppConfirmationRoute: typeof AppConfirmationRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppPaymentRoute: typeof AppPaymentRoute
-  AppIndexRoute: typeof AppIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -198,9 +198,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   AppAppRoute: AppAppRoute,
   AppBookRoute: AppBookRoute,
+  AppConfirmationRoute: AppConfirmationRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppPaymentRoute: AppPaymentRoute,
-  AppIndexRoute: AppIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -217,9 +217,9 @@ export const routeTree = rootRoute
         "/login",
         "/app/app",
         "/app/book",
+        "/app/confirmation",
         "/app/dashboard",
-        "/app/payment",
-        "/app/"
+        "/app/payment"
       ]
     },
     "/": {
@@ -234,14 +234,14 @@ export const routeTree = rootRoute
     "/app/book": {
       "filePath": "app/book.ts"
     },
+    "/app/confirmation": {
+      "filePath": "app/confirmation.ts"
+    },
     "/app/dashboard": {
       "filePath": "app/dashboard.ts"
     },
     "/app/payment": {
       "filePath": "app/payment.ts"
-    },
-    "/app/": {
-      "filePath": "app/index.ts"
     }
   }
 }

@@ -5,7 +5,7 @@ import {
 import { Home } from '../pages/home';
 import { rootRoute } from './__root';
 import { loginRoute } from './login';
-import { appRoute } from './app';
+import { appRoute } from './app/app';
 
 const indexRoute = createRoute({
     getParentRoute: () => rootRoute,

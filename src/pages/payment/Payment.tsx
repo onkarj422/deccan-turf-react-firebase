@@ -1,22 +1,36 @@
-import TimeSlotRange from '@/components/DateTime/TimeSlotRange';
+/* eslint-disable max-len */
+import {
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+import {
+    Button,
+    Divider,
+    Text,
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { Navigate, useNavigate } from '@tanstack/react-router';
+import { useAuth } from '@/context';
 import { getTotalSlotHours } from '@/lib/dates/utils';
 import { useBookingStore } from '@/store/local/bookingStore';
-import {
-    Button, Card, Divider,
-    Switch,
-    Text,
-    Title,
-} from '@mantine/core';
-import { Navigate } from '@tanstack/react-router';
-import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { createBookingPayload } from '@/store/server/bookings/utils';
+import { useCreateBooking, useUpdateBooking } from '@/store/server/bookings';
+import { fetchPayment } from '@/store/server/payments/endpoints';
+import { createPaymentPayload } from '@/store/server/payments/utils';
+import { BOOKING_STATUS } from '@/store/server/bookings/constants';
+import { AdvancePaymentCard, BookingSummaryCard, SlotSummaryCard } from './components';
 
 export default function Payment() {
     const [isAdvancedPayment, setIsAdvancedPayment] = useState(false);
-    const { bookingDetails, turf } = useBookingStore();
+    const navigate = useNavigate();
+    const { bookingDetails, turf, resetBooking } = useBookingStore();
+    const createBooking = useCreateBooking();
+    const updateBooking = useUpdateBooking();
+    const auth = useAuth();
 
-    const slotDate = bookingDetails?.slot.date || dayjs();
     const slots = bookingDetails?.slot.times || [];
+
     const totalHours = getTotalSlotHours(slots);
     const minAdvance = turf ? turf.advanceAmount * totalHours : 0;
 
@@ -24,10 +38,22 @@ export default function Payment() {
         if (isAdvancedPayment) {
             return minAdvance;
         }
-        return bookingDetails?.totalAmount;
+        return bookingDetails?.totalAmount || 0;
     }, [isAdvancedPayment, minAdvance, bookingDetails?.totalAmount]);
 
-    if (!bookingDetails) {
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://mercury.phonepe.com/web/bundle/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    const [loading, setLoading] = useState(false);
+
+    if (!bookingDetails || !turf) {
         return (
             <Navigate
                 to="/"
@@ -36,7 +62,90 @@ export default function Payment() {
         );
     }
 
-    if (!turf) {
+    const handleProceedToPayment = async () => {
+        setLoading(true);
+        try {
+            // 1. Create booking in Firestore if not already created
+            const bookingPayload = createBookingPayload(
+                bookingDetails,
+                turf,
+                auth,
+                isAdvancedPayment,
+            );
+            const booking = await createBooking.mutateAsync(bookingPayload);
+
+            if (!booking.bookingId) {
+                throw new Error(JSON.stringify({
+                    message: booking,
+                    type: 'BOOKING_CREATION_ERROR',
+                }));
+            }
+
+            // 2. Prepare payment params for PhonePe API
+            const redirectUrl = `${window.location.origin}/app/payment/confirmation`;
+            const paymentPayload = createPaymentPayload(booking, finalAmount, redirectUrl);
+            const paymentResponse = await fetchPayment(paymentPayload);
+            if (!paymentResponse.ok) {
+                const errJson = await paymentResponse.json();
+                throw new Error(JSON.stringify({
+                    message: errJson?.error || 'Payment initiation failed',
+                    type: 'PAYMENT_API_ERROR',
+                    code: paymentResponse.status,
+                }));
+            }
+            const paymentData = await paymentResponse.json();
+            // Use the tokenUrl from the backend response
+            const tokenUrl = paymentData.redirectUrl;
+            if (!tokenUrl) {
+                throw new Error(JSON.stringify({
+                    message: 'Invalid response from payment API',
+                    type: 'INVALID_RESPONSE',
+                    code: paymentResponse.status,
+                }));
+            }
+            (window as any).PhonePeCheckout.transact({
+                tokenUrl,
+                callback: async function callback(response: string) {
+                    if (response === 'USER_CANCEL') {
+                        // Handle user cancellation here
+                        notifications.show({
+                            title: 'Payment Cancelled',
+                            message: 'You have cancelled the payment.',
+                            color: 'red',
+                        });
+                        await navigate({
+                            to: `/app/booking/${turf.turfId}`,
+                            replace: true,
+                        });
+                        resetBooking();
+                    } else if (response === 'CONCLUDED') {
+                        await updateBooking.mutateAsync({
+                            bookingId: booking.bookingId,
+                            updatedData: {
+                                status: BOOKING_STATUS.CONFIRMED,
+                                paymentId: paymentData.orderId,
+                            },
+                        });
+                        setLoading(false);
+                        navigate({
+                            to: '/app/confirmation',
+                            replace: true,
+                        });
+                    }
+                },
+                type: 'IFRAME',
+            });
+        } catch (e) {
+            notifications.show({
+                title: e.type || 'Error',
+                message: e.message || 'Unexpected error',
+                color: 'red',
+            });
+            setLoading(false);
+        }
+    };
+
+    if (!bookingDetails || !turf) {
         return (
             <Navigate
                 to="/"
@@ -47,132 +156,20 @@ export default function Payment() {
 
     return (
         <div className="flex flex-col grow h-full w-full gap-4">
-            <Card
-                withBorder
-                radius="md"
-                bg="lime.4"
-                className="flex flex-col"
-            >
-                <Title
-                    size="xl"
-                    c="gray.9"
-                    fw={400}
-                >
-                    { turf.name }
-                </Title>
-                <Text
-                    size="lg"
-                    c="gray.9"
-                    fw={300}
-                >
-                    { `${turf.location.addressLine}, ${turf.location.area}` }
-                </Text>
-                <Divider my="lg" />
-                <Title
-                    size="xl"
-                    c="gray.9"
-                >
-                    Slot Details
-                </Title>
-                <Text
-                    size="lg"
-                    c="gray.9"
-                    mb="sm"
-                >
-                    { `${slotDate.format('ddd')}, ${slotDate.format('D')}th ${slotDate.format('MMM YY')}` }
-                </Text>
-                <Card
-                    withBorder
-                    radius="md"
-                    p="sm"
-                    className="flex flex-col align-start"
-                >
-                    <TimeSlotRange
-                        slots={slots}
-                        size="lg"
-                    />
-                    <Text
-                        size="md"
-                        fw={500}
-                    >
-                        { `₹ ${bookingDetails.totalAmount}` }
-                    </Text>
-                </Card>
-            </Card>
-            <Card
-                withBorder
-                radius="md"
-                className="flex flex-col gap-2 p-2"
-            >
-                <Title size="xl">Booking Summary</Title>
-                <div className="flex flex-row justify-between">
-                    <Text size="md">Venue</Text>
-                    <Text size="md">
-                        { `${turf.name}` }
-                    </Text>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <Text size="md">Slot Price</Text>
-                    <Text size="md">
-                        { `₹ ${turf.pricePerHour}` }
-                    </Text>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <Text size="md">
-                        Slot Hours
-                    </Text>
-                    <Text size="md">
-                        { totalHours }
-                    </Text>
-                </div>
-                <Card.Section
-                    p="sm"
-                >
-                    <Divider my="xs" />
-                    <div className="flex flex-row justify-between">
-                        <Text
-                            size="lg"
-                            c="lime"
-                        >
-                            Total Price
-                        </Text>
-                        <Text size="lg">
-                            { `₹ ${bookingDetails.totalAmount}` }
-                        </Text>
-                    </div>
-                    <div className="flex flex-row justify-between">
-                        <Text
-                            size="lg"
-                            c="lime"
-                        >
-                            Min. Advance Payment
-                        </Text>
-                        <Text size="lg">
-                            { `₹ ${minAdvance}` }
-                        </Text>
-                    </div>
-                </Card.Section>
-            </Card>
-            <Card
-                withBorder
-                radius="md"
-            >
-                <div className="flex flex-row justify-between">
-                    <Text size="lg">Advance Payment</Text>
-                    <Switch
-                        checked={isAdvancedPayment}
-                        onChange={(event) => setIsAdvancedPayment(event.currentTarget.checked)}
-                        size="lg"
-                        color="lime"
-                    />
-                </div>
-                <Text
-                    size="md"
-                    c="dimmed"
-                >
-                    Pay only the advance amount now. The remaining amount can be paid directly at the venue.
-                </Text>
-            </Card>
+            <SlotSummaryCard
+                bookingDetails={bookingDetails}
+                turf={turf}
+            />
+            <BookingSummaryCard
+                venueName={turf.name}
+                totalHours={totalHours}
+                pricePerHour={turf.pricePerHour}
+                minAdvance={minAdvance}
+            />
+            <AdvancePaymentCard
+                isAdvancedPayment={isAdvancedPayment}
+                onChange={setIsAdvancedPayment}
+            />
             <div className="flex-grow-1" />
             <Text
                 size="lg"
@@ -192,6 +189,9 @@ export default function Payment() {
                 color="lime"
                 c="white"
                 radius="md"
+                onClick={handleProceedToPayment}
+                loading={loading}
+                disabled={loading}
             >
                 Proceed to Payment
             </Button>

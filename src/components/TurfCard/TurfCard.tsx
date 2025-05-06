@@ -4,7 +4,6 @@ import {
     Box,
     Divider,
 } from '@mantine/core';
-import './TurfCard.css';
 
 interface TurfCardProps {
     name: string;
