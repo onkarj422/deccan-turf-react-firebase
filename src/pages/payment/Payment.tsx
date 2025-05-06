@@ -113,6 +113,14 @@ export default function Payment() {
                             message: 'You have cancelled the payment.',
                             color: 'red',
                         });
+                        await updateBooking.mutateAsync({
+                            bookingId: booking.bookingId,
+                            updatedData: {
+                                status: BOOKING_STATUS.CANCELLED,
+                                paymentId: paymentData.orderId,
+                                advancePaid: 0,
+                            },
+                        });
                         await navigate({
                             to: `/app/booking/${turf.turfId}`,
                             replace: true,
