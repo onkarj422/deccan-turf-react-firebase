@@ -43,11 +43,10 @@ export default function DaySlider({
             type="auto"
             scrollbarSize={0}
             scrollbars="x"
-            style={{ width: '100%' }}
+            w="100%"
         >
             <Group
                 wrap="nowrap"
-                py="4"
                 px="2"
                 gap={8}
             >

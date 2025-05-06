@@ -5,6 +5,9 @@ import { dashboardRoute } from './dashboard';
 import { bookRoute } from './book';
 import { paymentRoute } from './payment';
 import { confirmationRoute } from './confirmation';
+import { bookingsRoute } from './bookings';
+import { appIndexRoute } from './index';
+import { turfsRoute } from './turfs';
 
 export const appRoute = createRoute({
     path: '/app',
@@ -12,4 +15,12 @@ export const appRoute = createRoute({
     getParentRoute: () => rootRoute,
 });
 
-appRoute.addChildren([dashboardRoute, bookRoute, paymentRoute, confirmationRoute]);
+appRoute.addChildren([
+    dashboardRoute,
+    bookRoute,
+    paymentRoute,
+    confirmationRoute,
+    bookingsRoute,
+    appIndexRoute,
+    turfsRoute
+]);

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import {
-    Group, ScrollArea, Box, Text,
+    Group, ScrollArea, Box,
 } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
 import { BookingByTimeslot } from '@/store/server/bookings/types';
 import { createTimeslotKey } from '@/lib/dates/utils';
 import TimeSlotRange from './TimeSlotRange';
+import SlotLegend from './SlotLegend';
 
 interface TimeSlotSelectProps {
     selectedDate: Dayjs | string; // Selected date
@@ -90,37 +91,7 @@ export default function TimeSlotSelect({
     return (
         <Box>
             {/* Legend for slot status aligned right */}
-            <Box className="flex justify-end">
-                <Group
-                    mb={8}
-                    gap={16}
-                >
-                    <Group
-                        gap={4}
-                        align="center"
-                    >
-                        <Box
-                            w={10}
-                            h={10}
-                            bg="lime.2"
-                            style={{ borderRadius: '50%' }}
-                        />
-                        <Text size="xs">Available</Text>
-                    </Group>
-                    <Group
-                        gap={4}
-                        align="center"
-                    >
-                        <Box
-                            w={10}
-                            h={10}
-                            bg="gray.4"
-                            style={{ borderRadius: '50%' }}
-                        />
-                        <Text size="xs">Booked</Text>
-                    </Group>
-                </Group>
-            </Box>
+            <SlotLegend />
             <ScrollArea
                 type="auto"
                 scrollbarSize={0}

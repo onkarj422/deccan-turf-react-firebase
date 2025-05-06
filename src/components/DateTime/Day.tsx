@@ -22,8 +22,8 @@ export default function Day({
     }, [selected, disabled]);
     return (
         <Card
-            w="4rem"
-            h="4rem"
+            w="3.5rem"
+            h="3.5rem"
             p="xs"
             withBorder
             bg={bg}

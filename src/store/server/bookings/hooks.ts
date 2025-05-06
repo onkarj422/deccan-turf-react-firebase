@@ -2,6 +2,7 @@ import { useFetchBookings } from '@/store/server/bookings';
 import dayjs from 'dayjs';
 import { Timestamp } from 'firebase/firestore';
 import { useMemo } from 'react';
+import { FirestoreFilter } from '@/lib/firebase/firestore/query-builder';
 import { createBookingsHash } from './utils';
 
 export const useBookingsFromToday = () => {
@@ -21,20 +22,32 @@ export const useBookingsFromToday = () => {
     });
 };
 
-export const useBookingsFromTodayHash = () => {
+export const useBookingsFromTodayHash = (turfId = '') => {
     const todayTimestamp = useMemo(() => {
         const today = dayjs().startOf('day').toDate();
         return Timestamp.fromDate(today);
     }, []);
 
-    const bookingsQueryResult = useFetchBookings({
-        filters: [
+    const filters = useMemo(() => {
+        const filtersArr: FirestoreFilter[] = [
             {
                 field: 'slot.date',
                 op: '>=',
                 value: todayTimestamp,
             },
-        ],
+        ];
+        if (turfId) {
+            filtersArr.push({
+                field: 'turfId',
+                op: '==',
+                value: turfId,
+            });
+        }
+        return filtersArr;
+    }, [turfId, todayTimestamp]);
+
+    const bookingsQueryResult = useFetchBookings({
+        filters,
     });
 
     const bookingsByDateTimeHash = useMemo(() => {

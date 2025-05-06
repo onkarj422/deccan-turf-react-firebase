@@ -8,7 +8,7 @@ import Month from './Month';
 
 interface DateSelectProps {
     selectedDate: string | Dayjs; // Optional selected date
-    onChangeDate: (date: string | Dayjs) => void; // Optional onClick handler
+    onChangeDate: (date: Dayjs) => void; // Optional onClick handler
     unavailableDates?: Record<DateKey, boolean>; // Optional unavailable dates
 }
 
@@ -38,6 +38,7 @@ export default function DateSelect({
         <Card
             withBorder
             radius="md"
+            mih={140}
             className="flex flex-col gap-4 p-2"
         >
             <Group
@@ -53,20 +54,20 @@ export default function DateSelect({
                     <ActionIcon
                         onClick={handlePrevMonth}
                         color="lime.6"
-                        size="lg"
+                        size="md"
                     >
                         <IconChevronLeft
-                            size="30"
+                            size="24"
                             color="white"
                         />
                     </ActionIcon>
                     <ActionIcon
                         onClick={handleNextMonth}
                         color="lime.6"
-                        size="lg"
+                        size="md"
                     >
                         <IconChevronRight
-                            size="30"
+                            size="24"
                             color="white"
                         />
                     </ActionIcon>

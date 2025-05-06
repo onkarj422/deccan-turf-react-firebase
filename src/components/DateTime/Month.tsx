@@ -11,7 +11,7 @@ export default function Month({
 }: MonthProps) {
     return (
         <Title
-            size="h2"
+            size="h3"
             c="lime.6"
         >
             {dayjs(selectedDate).format('MMM YYYY')}
