@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from '@tanstack/react-router';
 import {
     Card, Title, Divider, Text, Button,
+    Drawer,
 } from '@mantine/core';
 import { useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -12,6 +13,8 @@ import { useBookingsFromTodayHash } from '@/store/server/bookings/hooks';
 import { createDateKey, getTotalSlotHours } from '@/lib/dates/utils';
 import TimeSlotSummary from '@/components/DateTime/TimeSlotSummary';
 import { useBookingStore } from '@/store/local/bookingStore';
+import { useAuth } from '@/context';
+import UpdatePhone from '../users/components/UpdatePhone';
 
 export default function Booking() {
     const { turfId } = useParams({ strict: false });
@@ -20,6 +23,8 @@ export default function Booking() {
     } = useFetchTurfs();
     const [selectedDate, setSelectedDate] = useState<string | Dayjs>(dayjs());
     const [selectedTimeSlots, setSelectedTimeSlots] = useState<Dayjs[]>([]);
+    const [showContactDrawer, setShowContactDrawer] = useState(false);
+    const { user } = useAuth();
     const navigate = useNavigate();
     const bookingStore = useBookingStore();
 
@@ -40,11 +45,7 @@ export default function Booking() {
 
     if (!turf) return <div>Turf not found</div>;
 
-    // Handler for Book Now button
-    const handleBookNow = () => {
-        if (!selectedTimeSlots || selectedTimeSlots.length === 0) {
-            return;
-        }
+    const continueBooking = () => {
         // Booking payload (see Booking interface)
         const bookingDetails = {
             slot: {
@@ -62,6 +63,24 @@ export default function Booking() {
             to: '/app/payment',
             replace: true,
         });
+    };
+
+    // Handler for Book Now button
+    const handleBookNow = () => {
+        if (!selectedTimeSlots || selectedTimeSlots.length === 0) {
+            return;
+        }
+
+        if (!user.phone) {
+            setShowContactDrawer(true);
+        } else {
+            continueBooking();
+        }
+    };
+
+    const onCloseContactDrawer = () => {
+        setShowContactDrawer(false);
+        continueBooking();
     };
 
     return (
@@ -111,6 +130,14 @@ export default function Booking() {
             >
                 Book Now
             </Button>
+            <Drawer
+                opened={showContactDrawer}
+                onClose={onCloseContactDrawer}
+                size="sm"
+                position="bottom"
+            >
+                <UpdatePhone onUpdate={onCloseContactDrawer} />
+            </Drawer>
         </div>
     );
 }
