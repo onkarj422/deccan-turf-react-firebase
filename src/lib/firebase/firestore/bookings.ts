@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
     Timestamp,
     collection,
@@ -32,34 +33,59 @@ const bookingsCollection = collection(db, 'bookings');
 
 // Create a new booking
 export const createBooking = async (booking: Omit<Booking, 'bookingId'>): Promise<Booking> => {
-    const newBookingRef = doc(bookingsCollection);
-    const bookingWithId = { ...booking, bookingId: newBookingRef.id };
-    await setDoc(newBookingRef, bookingWithId);
-    return bookingWithId;
+    try {
+        const newBookingRef = doc(bookingsCollection);
+        const bookingWithId = { ...booking, bookingId: newBookingRef.id };
+        await setDoc(newBookingRef, bookingWithId);
+        return bookingWithId;
+    } catch (error) {
+        console.error('Error creating booking:', error);
+        throw error;
+    }
 };
 
 // Read a booking by ID
 export const getBookingById = async (bookingId: string): Promise<Booking | null> => {
-    const bookingDoc = doc(bookingsCollection, bookingId);
-    const bookingSnapshot = await getDoc(bookingDoc);
-    return bookingSnapshot.exists() ? (bookingSnapshot.data() as Booking) : null;
+    try {
+        const bookingDoc = doc(bookingsCollection, bookingId);
+        const bookingSnapshot = await getDoc(bookingDoc);
+        return bookingSnapshot.exists() ? (bookingSnapshot.data() as Booking) : null;
+    } catch (error) {
+        console.error('Error getting booking by ID:', error);
+        throw error;
+    }
 };
 
 // Update a booking by ID
 export const updateBooking = async (bookingId: string, updatedData: Partial<Booking>): Promise<void> => {
-    const bookingDoc = doc(bookingsCollection, bookingId);
-    await updateDoc(bookingDoc, updatedData);
+    try {
+        const bookingDoc = doc(bookingsCollection, bookingId);
+        await updateDoc(bookingDoc, updatedData);
+    } catch (error) {
+        console.error('Error updating booking:', error);
+        throw error;
+    }
 };
 
 // Delete a booking by ID
 export const deleteBooking = async (bookingId: string): Promise<void> => {
-    const bookingDoc = doc(bookingsCollection, bookingId);
-    await deleteDoc(bookingDoc);
+    try {
+        const bookingDoc = doc(bookingsCollection, bookingId);
+        await deleteDoc(bookingDoc);
+    } catch (error) {
+        console.error('Error deleting booking:', error);
+        throw error;
+    }
 };
 
 // Get all bookings, with flexible filtering using FirestoreQueryOptions
 export const getAllBookings = async (options: FirestoreQueryOptions = {}): Promise<Booking[]> => {
-    const q = buildFirestoreQuery(bookingsCollection, options);
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((docItem) => ({ ...docItem.data(), bookingId: docItem.id } as Booking));
+    try {
+        const q = buildFirestoreQuery(bookingsCollection, options);
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map((docItem) => ({ ...docItem.data(), bookingId: docItem.id } as Booking));
+    } catch (error) {
+        console.error('Error getting all bookings:', error);
+        throw error;
+    }
 };

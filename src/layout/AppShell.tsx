@@ -1,5 +1,5 @@
 import {
-    AppShell, Burger, Button, Divider, Title,
+    AppShell, Box, Burger, Button, Divider, Text, Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, useNavigate, useMatches } from '@tanstack/react-router';
@@ -83,15 +83,27 @@ export default function Shell() {
                     <Divider my="lg" />
                     <ColorSchemeSwitch />
                     <div className="flex-grow-1" />
-                    <Button
-                        fullWidth
-                        color="red"
-                        variant="light"
-                        size="md"
-                        onClick={handleSignOut}
+                    <Box
+                        w="100%"
+                        className="flex flex-row items-center gap-8"
                     >
-                        Sign Out
-                    </Button>
+                        <Button
+                            fullWidth
+                            color="red"
+                            variant="light"
+                            size="md"
+                            onClick={handleSignOut}
+                        >
+                            Sign Out
+                        </Button>
+                        <Text
+                            size="xs"
+                            c="dimmed"
+                            ml="auto"
+                        >
+                            Version: 1
+                        </Text>
+                    </Box>
                 </AppShell.Navbar>
 
                 <AppShell.Main

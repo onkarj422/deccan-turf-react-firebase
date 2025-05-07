@@ -8,11 +8,10 @@ import { useEffect, useState } from 'react';
 import { Turf } from '@/lib/firebase/firestore/turfs';
 import { useUsersHash } from '@/store/server/users/hooks';
 import {
-    Box, Button, Drawer, Indicator, Title, Transition,
+    Box, Button, Drawer, Indicator, LoadingOverlay, Title, Transition,
 } from '@mantine/core';
 import { BOOKING_STATUS } from '@/store/server/bookings/constants';
 import { IconCalendarClock } from '@tabler/icons-react';
-import { PageLoader } from '@/components/Loader';
 import TurfSelect from '../turfs/components/TurfSelect';
 import { AdminBooking } from './components/AdminBooking';
 
@@ -22,7 +21,10 @@ export default function Bookings() {
     const [selectedTurf, setSelectedTurf] = useState<Turf>();
     const [showBookingDrawer, setShowBookingDrawer] = useState(false);
     const { setHeaderSlot } = useHeaderSlot();
-    const { bookingsByDateTimeslot, isLoading: isLoadingBookings } = useBookingsFromTodayHash(selectedTurf?.turfId || '');
+    const { bookingsByDateTimeslot, isLoading: isLoadingBookings } = useBookingsFromTodayHash({
+        turfId: selectedTurf?.turfId,
+        filterCancelled: true,
+    });
     const { usersById, isLoading: isLoadingUsers } = useUsersHash();
 
     useEffect(() => {
@@ -33,8 +35,6 @@ export default function Bookings() {
             />,
         );
     }, [setHeaderSlot, selectedTurf, setSelectedTurf]);
-
-    if (isLoadingBookings || isLoadingUsers) return (<PageLoader />);
 
     const handleOnBook = () => {
         setShowBookingDrawer(false);
@@ -75,6 +75,11 @@ export default function Bookings() {
 
     return (
         <div className="flex flex-col grow h-full w-full gap-4 position-relative">
+            <LoadingOverlay
+                visible={isLoadingBookings || isLoadingUsers}
+                zIndex={1000}
+                overlayProps={{ radius: 'sm', blur: 2 }}
+            />
             <DateSelect
                 selectedDate={selectedDate}
                 onChangeDate={setSelectedDate}

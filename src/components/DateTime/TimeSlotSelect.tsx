@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Group, ScrollArea, Box,
 } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
 import { BookingByTimeslot } from '@/store/server/bookings/types';
-import { createTimeslotKey } from '@/lib/dates/utils';
+import { createTimeslotKey, getHourBlocks } from '@/lib/dates/utils';
 import TimeSlotRange from './TimeSlotRange';
 import SlotLegend from './SlotLegend';
 
@@ -18,8 +18,6 @@ interface TimeSlotSelectProps {
 const BLOCK_WIDTH = 60;
 const BLOCK_GAP = 8;
 
-const getHourBlocks = (selectedDate: dayjs.Dayjs) => Array.from({ length: 25 }, (_, i) => selectedDate.startOf('day').add(i, 'hour'));
-
 export default function TimeSlotSelect({
     selectedDate: _selectedDate,
     selectedTimeSlots,
@@ -27,8 +25,9 @@ export default function TimeSlotSelect({
     unavailableTimeslots,
 }: TimeSlotSelectProps) {
     const selectedDate = dayjs(_selectedDate);
-    const hourBlocks = getHourBlocks(selectedDate);
     const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
+
+    const hourBlocks = useMemo(() => getHourBlocks(selectedDate), [selectedDate]);
 
     const isBlockSelected = (idx: number) => {
         if (!selection) return false;

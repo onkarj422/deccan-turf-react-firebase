@@ -20,3 +20,16 @@ export const getTotalSlotHours = (slots: Dayjs[]) => {
     const [startHour, endHour] = getStartAndEndHours(slots);
     return endHour.diff(startHour, 'hour');
 };
+
+export const getHourBlocks = (selectedDate: dayjs.Dayjs) => {
+    const now = dayjs();
+    return Array.from({ length: 25 }, (_, i) => selectedDate.startOf('day').add(i, 'hour'))
+        .filter((block) => {
+            // If selected date is today, filter out past hours
+            if (selectedDate.isSame(now, 'day')) {
+                return block.isSame(now, 'hour') || block.isAfter(now);
+            }
+            // For future dates, show all
+            return true;
+        });
+};

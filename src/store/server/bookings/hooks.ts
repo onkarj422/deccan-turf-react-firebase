@@ -4,6 +4,7 @@ import { Timestamp } from 'firebase/firestore';
 import { useMemo } from 'react';
 import { FirestoreFilter } from '@/lib/firebase/firestore/query-builder';
 import { createBookingsHash } from './utils';
+import { BOOKING_STATUS } from './constants';
 
 export const useBookingsFromToday = () => {
     const todayTimestamp = useMemo(() => {
@@ -22,7 +23,10 @@ export const useBookingsFromToday = () => {
     });
 };
 
-export const useBookingsFromTodayHash = (turfId = '') => {
+export const useBookingsFromTodayHash = ({
+    turfId = '',
+    filterCancelled = true,
+} = {}) => {
     const todayTimestamp = useMemo(() => {
         const today = dayjs().startOf('day').toDate();
         return Timestamp.fromDate(today);
@@ -36,6 +40,13 @@ export const useBookingsFromTodayHash = (turfId = '') => {
                 value: todayTimestamp,
             },
         ];
+        if (filterCancelled) {
+            filtersArr.push({
+                field: 'status',
+                op: '!=',
+                value: BOOKING_STATUS.CANCELLED,
+            });
+        }
         if (turfId) {
             filtersArr.push({
                 field: 'turfId',
@@ -44,7 +55,7 @@ export const useBookingsFromTodayHash = (turfId = '') => {
             });
         }
         return filtersArr;
-    }, [turfId, todayTimestamp]);
+    }, [todayTimestamp, filterCancelled, turfId]);
 
     const bookingsQueryResult = useFetchBookings({
         filters,

@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Group, ScrollArea, Box, Divider,
 } from '@mantine/core';
 import dayjs, { Dayjs } from 'dayjs';
 import { BookingByTimeslot } from '@/store/server/bookings/types';
-import { createTimeslotKey } from '@/lib/dates/utils';
+import { createTimeslotKey, getHourBlocks } from '@/lib/dates/utils';
 import { Booking } from '@/lib/firebase/firestore/bookings';
 import TimeSlotRange from './TimeSlotRange';
 import SlotLegend from './SlotLegend';
@@ -34,8 +34,6 @@ const BLOCK_HEIGHT = 60;
 const BLOCK_GAP = 8;
 const LABEL_WIDTH = 60;
 
-const getHourBlocks = (selectedDate: dayjs.Dayjs) => Array.from({ length: 25 }, (_, i) => selectedDate.startOf('day').add(i, 'hour'));
-
 export default function VerticalTimeSlotSelect({
     selectedDate: _selectedDate,
     selectedTimeSlots,
@@ -47,8 +45,9 @@ export default function VerticalTimeSlotSelect({
     allowUnvailableClick = false,
 }: VerticalTimeSlotSelectProps) {
     const selectedDate = dayjs(_selectedDate);
-    const hourBlocks = getHourBlocks(selectedDate);
     const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
+
+    const hourBlocks = useMemo(() => getHourBlocks(selectedDate), [selectedDate]);
 
     const isBlockSelected = (idx: number) => {
         if (!selection) return false;
