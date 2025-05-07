@@ -6,9 +6,9 @@ import {
     updateDoc,
     query,
     getDocs,
-    addDoc,
     Timestamp,
-    GeoPoint
+    GeoPoint,
+    setDoc,
 } from 'firebase/firestore';
 import { db } from '../db';
 
@@ -41,8 +41,10 @@ const turfsCollection = collection(db, 'turfs');
 
 // Create a new turf
 export const createTurf = async (turf: Omit<Turf, 'turfId'>): Promise<Turf> => {
-    const newTurfRef = await addDoc(turfsCollection, turf);
-    return { ...turf, turfId: newTurfRef.id }; // Return the created turf with the generated ID
+    const newTurfRef = doc(turfsCollection);
+    const turfWithId = { ...turf, turfId: newTurfRef.id };
+    await setDoc(newTurfRef, turfWithId);
+    return turfWithId;
 };
 
 // Read a turf by ID
@@ -68,5 +70,5 @@ export const deleteTurf = async (turfId: string): Promise<void> => {
 export const getAllTurfs = async (): Promise<Turf[]> => {
     const q = query(turfsCollection);
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data() as Turf);
+    return querySnapshot.docs.map((docItem) => docItem.data() as Turf);
 };

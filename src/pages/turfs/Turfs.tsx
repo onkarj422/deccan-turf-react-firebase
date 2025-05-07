@@ -1,17 +1,20 @@
 import { TurfCard } from '@/components/TurfCard';
+import { useAuth } from '@/context';
 import { useFetchTurfs } from '@/store/server/turfs';
 import {
+    Box,
     Button, Card, Divider, ScrollArea, SimpleGrid,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 
 export default function Turfs() {
+    const { user } = useAuth();
     const { data: turfs } = useFetchTurfs();
     const navigate = useNavigate();
 
     const handleAddTurf = () => {
-
+        navigate({ to: '/app/create-turf' });
     };
 
     const handleBookNow = (turfId: string) => {
@@ -28,7 +31,7 @@ export default function Turfs() {
             >
                 <ScrollArea
                     type="auto"
-                    scrollbarSize={2}
+                    scrollbarSize={0}
                     scrollbars="y"
                 >
                     <SimpleGrid cols={1}>
@@ -42,22 +45,30 @@ export default function Turfs() {
                     </SimpleGrid>
                 </ScrollArea>
                 <div className="grow" />
-                <Divider />
-                <Button
-                    tt="uppercase"
-                    size="md"
-                    bg="lime"
-                    c="white"
-                    leftSection={(
-                        <IconPlus
-                            size={24}
-                            color="white"
-                        />
-                    )}
-                    onClick={handleAddTurf}
-                >
-                    Create New
-                </Button>
+                {user?.role === 'admin' && (
+                    <Box
+                        px="md"
+                        pt="md"
+                        className="flex justify-center items-center"
+                    >
+                        <Divider />
+                        <Button
+                            tt="uppercase"
+                            size="md"
+                            bg="lime"
+                            c="white"
+                            leftSection={(
+                                <IconPlus
+                                    size={24}
+                                    color="white"
+                                />
+                            )}
+                            onClick={handleAddTurf}
+                        >
+                            Create New
+                        </Button>
+                    </Box>
+                )}
             </Card>
         </div>
     );

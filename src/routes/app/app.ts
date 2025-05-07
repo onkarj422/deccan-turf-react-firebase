@@ -8,6 +8,7 @@ import { confirmationRoute } from './confirmation';
 import { bookingsRoute } from './bookings';
 import { appIndexRoute } from './index';
 import { turfsRoute } from './turfs';
+import { createTurfRoute } from './create-turf';
 
 export const appRoute = createRoute({
     path: '/app',
@@ -22,5 +23,6 @@ appRoute.addChildren([
     confirmationRoute,
     bookingsRoute,
     appIndexRoute,
-    turfsRoute
+    turfsRoute,
+    createTurfRoute,
 ]);

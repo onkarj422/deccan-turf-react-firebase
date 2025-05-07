@@ -17,6 +17,7 @@ import { Route as AppIndexImport } from './routes/app/index'
 import { Route as AppTurfsImport } from './routes/app/turfs'
 import { Route as AppPaymentImport } from './routes/app/payment'
 import { Route as AppDashboardImport } from './routes/app/dashboard'
+import { Route as AppCreateTurfImport } from './routes/app/create-turf'
 import { Route as AppConfirmationImport } from './routes/app/confirmation'
 import { Route as AppBookingsImport } from './routes/app/bookings'
 import { Route as AppBookImport } from './routes/app/book'
@@ -57,6 +58,12 @@ const AppPaymentRoute = AppPaymentImport.update({
 const AppDashboardRoute = AppDashboardImport.update({
   id: '/app/dashboard',
   path: '/app/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AppCreateTurfRoute = AppCreateTurfImport.update({
+  id: '/app/create-turf',
+  path: '/app/create-turf',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -130,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConfirmationImport
       parentRoute: typeof rootRoute
     }
+    '/app/create-turf': {
+      id: '/app/create-turf'
+      path: '/app/create-turf'
+      fullPath: '/app/create-turf'
+      preLoaderRoute: typeof AppCreateTurfImport
+      parentRoute: typeof rootRoute
+    }
     '/app/dashboard': {
       id: '/app/dashboard'
       path: '/app/dashboard'
@@ -170,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/app/book': typeof AppBookRoute
   '/app/bookings': typeof AppBookingsRoute
   '/app/confirmation': typeof AppConfirmationRoute
+  '/app/create-turf': typeof AppCreateTurfRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/payment': typeof AppPaymentRoute
   '/app/turfs': typeof AppTurfsRoute
@@ -183,6 +198,7 @@ export interface FileRoutesByTo {
   '/app/book': typeof AppBookRoute
   '/app/bookings': typeof AppBookingsRoute
   '/app/confirmation': typeof AppConfirmationRoute
+  '/app/create-turf': typeof AppCreateTurfRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/payment': typeof AppPaymentRoute
   '/app/turfs': typeof AppTurfsRoute
@@ -197,6 +213,7 @@ export interface FileRoutesById {
   '/app/book': typeof AppBookRoute
   '/app/bookings': typeof AppBookingsRoute
   '/app/confirmation': typeof AppConfirmationRoute
+  '/app/create-turf': typeof AppCreateTurfRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/payment': typeof AppPaymentRoute
   '/app/turfs': typeof AppTurfsRoute
@@ -212,6 +229,7 @@ export interface FileRouteTypes {
     | '/app/book'
     | '/app/bookings'
     | '/app/confirmation'
+    | '/app/create-turf'
     | '/app/dashboard'
     | '/app/payment'
     | '/app/turfs'
@@ -224,6 +242,7 @@ export interface FileRouteTypes {
     | '/app/book'
     | '/app/bookings'
     | '/app/confirmation'
+    | '/app/create-turf'
     | '/app/dashboard'
     | '/app/payment'
     | '/app/turfs'
@@ -236,6 +255,7 @@ export interface FileRouteTypes {
     | '/app/book'
     | '/app/bookings'
     | '/app/confirmation'
+    | '/app/create-turf'
     | '/app/dashboard'
     | '/app/payment'
     | '/app/turfs'
@@ -250,6 +270,7 @@ export interface RootRouteChildren {
   AppBookRoute: typeof AppBookRoute
   AppBookingsRoute: typeof AppBookingsRoute
   AppConfirmationRoute: typeof AppConfirmationRoute
+  AppCreateTurfRoute: typeof AppCreateTurfRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppPaymentRoute: typeof AppPaymentRoute
   AppTurfsRoute: typeof AppTurfsRoute
@@ -263,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppBookRoute: AppBookRoute,
   AppBookingsRoute: AppBookingsRoute,
   AppConfirmationRoute: AppConfirmationRoute,
+  AppCreateTurfRoute: AppCreateTurfRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppPaymentRoute: AppPaymentRoute,
   AppTurfsRoute: AppTurfsRoute,
@@ -285,6 +307,7 @@ export const routeTree = rootRoute
         "/app/book",
         "/app/bookings",
         "/app/confirmation",
+        "/app/create-turf",
         "/app/dashboard",
         "/app/payment",
         "/app/turfs",
@@ -308,6 +331,9 @@ export const routeTree = rootRoute
     },
     "/app/confirmation": {
       "filePath": "app/confirmation.ts"
+    },
+    "/app/create-turf": {
+      "filePath": "app/create-turf.ts"
     },
     "/app/dashboard": {
       "filePath": "app/dashboard.ts"
