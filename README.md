@@ -95,6 +95,16 @@ To run Firebase services locally, follow these steps:
 
    Ensure you have the correct Firebase project selected before deploying.
 
+## PhonePe Payment Gateway
+
+To test PhonePe Payment Gateway locally, follow these steps:
+
+1. Create a .env file in /functions directory
+
+2. Get the PhonePe test secrets from Google Groups
+
+3. All set! You can restart the firebase emulator and go to Booking page in UI to test the payment
+
 ---
 
 For more details on the project setup and configuration, refer to the [Vite documentation](https://vitejs.dev/) and [Firebase documentation](https://firebase.google.com/docs).
