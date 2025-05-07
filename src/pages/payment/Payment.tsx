@@ -63,14 +63,14 @@ export default function Payment() {
     }
 
     const handleProceedToPayment = async () => {
-        if (auth.user.role !== 'user') {
-            notifications.show({
-                title: 'Unauthorized',
-                message: 'You need an account with USER role to proceed.',
-                color: 'red',
-            });
-            return;
-        }
+        // if (auth.user.role !== 'user') {
+        //     notifications.show({
+        //         title: 'Unauthorized',
+        //         message: 'You need an account with USER role to proceed.',
+        //         color: 'red',
+        //     });
+        //     return;
+        // }
         setLoading(true);
         try {
             // 1. Create booking in Firestore if not already created

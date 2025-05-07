@@ -14,7 +14,7 @@ import {
 import { User as FirebaseUser } from 'firebase/auth';
 import { db } from '../db';
 
-const ADMIN_EMAILS = ['onkarj422@gmail.com'];
+const ADMIN_EMAILS = ['onkarj422@gmail.com', 'joshisharvil11@gmail.com', 'joshipravin969@gmail.com'];
 export interface User {
   createdAt: Timestamp; // Timestamp when the user was created
   email: string; // Email address of the user
