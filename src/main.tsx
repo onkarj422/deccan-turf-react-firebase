@@ -13,6 +13,7 @@ import '@mantine/notifications/styles.css';
 declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
       title?: string
+      disableNavBar?: boolean
   }
 }
 

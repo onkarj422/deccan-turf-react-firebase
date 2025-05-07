@@ -3,48 +3,56 @@ import {
     Card, Image, Text, Button, Group,
     Box,
     Divider,
+    Title,
 } from '@mantine/core';
+import { Turf } from '@/lib/firebase/firestore/turfs';
 
 interface TurfCardProps {
-    name: string;
-    description: string;
-    pricePerHour: number;
-    image: string;
-    onBookNow: (turfId: string) => void;
+    turf: Turf
+    onBookNow?: (turfId: string) => void;
 }
 
 function TurfCard({
-    name, description, pricePerHour, onBookNow,
+    turf, onBookNow,
 }: TurfCardProps): JSX.Element {
     return (
         <Card
             padding="lg"
             radius="md"
             withBorder
+            bg="var(--mantine-color-body)"
         >
             <Card.Section
-                mb="md"
+                mb="xs"
                 withBorder
             >
                 <Image
-                    src="https://i.imgur.com/ZL52Q2D.png"
-                    alt="Tesla Model S"
+                    src={turf.images[0]}
+                    h={200}
+                    fit="cover"
                 />
             </Card.Section>
             <Box>
-                <Text fw={500}>{name}</Text>
-                <Text
-                    fz="xs"
-                    c="dimmed"
+                <Title
+                    size="h3"
+                    fw={500}
                 >
-                    {description}
+                    {turf.name}
+                </Title>
+                <Text
+                    size="lg"
+                    c="gray.9"
+                    fw={300}
+                >
+                    { `${turf.location?.addressLine}, ${turf.location?.area}` }
                 </Text>
             </Box>
-            <Divider my="lg" />
+            <Divider my="xs" />
             <Group
                 gap={30}
                 justify="space-between"
                 align="center"
+                pt="xs"
             >
                 <div>
                     <Text
@@ -53,7 +61,7 @@ function TurfCard({
                         style={{ lineHeight: 1 }}
                     >
                         Rs.
-                        {pricePerHour}
+                        {turf.pricePerHour}
                     </Text>
                     <Text
                         fz="sm"
@@ -65,17 +73,24 @@ function TurfCard({
                         per hour
                     </Text>
                 </div>
-
-                <Button
-                    color="lime"
-                    radius="md"
-                    onClick={() => onBookNow(name)}
-                >
-                    Book Now
-                </Button>
+                {onBookNow && (
+                    <Button
+                        color="lime"
+                        radius="md"
+                        tt="uppercase"
+                        c="white"
+                        onClick={() => onBookNow(turf.turfId)}
+                    >
+                        Book Now
+                    </Button>
+                )}
             </Group>
         </Card>
     );
 }
+
+TurfCard.defaultProps = {
+    onBookNow: undefined,
+};
 
 export default TurfCard;

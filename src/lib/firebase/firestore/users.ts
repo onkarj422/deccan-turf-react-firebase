@@ -8,6 +8,7 @@ import {
     query,
     where,
     getDocs,
+    setDoc,
     addDoc,
 } from 'firebase/firestore';
 import { User as FirebaseUser } from 'firebase/auth';
@@ -25,10 +26,17 @@ export interface User {
 
 const usersCollection = collection(db, 'users');
 
-// Create a new user
-export const createUser = async (user: Omit<User, 'userId'>): Promise<User> => {
-    const newUserRef = await addDoc(usersCollection, user);
-    return { ...user, userId: newUserRef.id }; // Return the created user with the generated ID
+// Create a new user, using userId as document ID if present, otherwise auto-generate
+export const createUser = async (user: Omit<User, 'userId'> & { userId?: string }): Promise<User> => {
+    if (user.userId) {
+        const userRef = doc(usersCollection, user.userId);
+        await setDoc(userRef, { ...user, userId: user.userId }, { merge: true });
+        return { ...user, userId: user.userId } as User;
+    }
+    // No userId provided, let Firestore generate one
+    const addDocRef = await addDoc(usersCollection, { ...user });
+    await setDoc(addDocRef, { ...user, userId: addDocRef.id }, { merge: true });
+    return { ...user, userId: addDocRef.id } as User;
 };
 
 // Read a user by ID
@@ -59,7 +67,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 
 export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User> => {
     const userId = firebaseUser.uid;
-    // Try to find user by UID
+    // Try to find user by UID (document ID)
     let user = await getUserById(userId);
     if (user) return user;
 
@@ -67,12 +75,14 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
     const q = query(usersCollection, where('email', '==', firebaseUser.email));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-        // User exists with this email, update their userId if needed
+        // User exists with this email, migrate to UID as document ID if needed
         const userDoc = querySnapshot.docs[0];
-        user = { ...userDoc.data(), userId: userDoc.id } as User;
-        if (user.userId !== userId) {
-            await updateUser(userDoc.id, { userId });
-            user.userId = userId;
+        user = { ...userDoc.data(), userId } as User;
+        if (userDoc.id !== userId) {
+            // Create new doc with UID as ID
+            await createUser(user);
+            // Delete old doc
+            await deleteUser(userDoc.id);
         }
         return user;
     }

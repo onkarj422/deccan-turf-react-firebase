@@ -6,7 +6,7 @@ import {
     deleteDoc,
     updateDoc,
     getDocs,
-    addDoc,
+    setDoc,
 } from 'firebase/firestore';
 
 import { db } from '../db';
@@ -32,8 +32,10 @@ const bookingsCollection = collection(db, 'bookings');
 
 // Create a new booking
 export const createBooking = async (booking: Omit<Booking, 'bookingId'>): Promise<Booking> => {
-    const newBookingRef = await addDoc(bookingsCollection, booking);
-    return { ...booking, bookingId: newBookingRef.id }; // Return the created booking with the generated ID
+    const newBookingRef = doc(bookingsCollection);
+    const bookingWithId = { ...booking, bookingId: newBookingRef.id };
+    await setDoc(newBookingRef, bookingWithId);
+    return bookingWithId;
 };
 
 // Read a booking by ID

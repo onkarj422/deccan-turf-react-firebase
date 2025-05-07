@@ -1,11 +1,16 @@
 import {
-    AppShell, Avatar, Box, Burger, Button, Divider, Title,
+    AppShell, Burger, Button, Divider, Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Outlet, useMatches, useNavigate } from '@tanstack/react-router';
+import { Outlet, useNavigate, useMatches } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { HeaderSlotProvider, useHeaderSlot } from '@/context/HeaderSlotContext';
 import { ColorSchemeSwitch } from '@/components/ColorSchemeSwitch';
 import { useAuth } from '@/context';
+import NavItem from '@/components/List/NavItem';
+import { useRouteStaticData } from './hooks';
+import UserName from './components/UserName';
+import { NAVIGATION_ITEMS } from './constants';
 
 function HeaderSlotRenderer() {
     const { headerSlot } = useHeaderSlot();
@@ -14,12 +19,15 @@ function HeaderSlotRenderer() {
 }
 
 export default function Shell() {
-    const [opened, { toggle }] = useDisclosure();
+    const [opened, { toggle, close }] = useDisclosure();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const { title } = useRouteStaticData();
     const matches = useMatches();
 
-    const title = matches[matches.length - 1].staticData?.title || '';
+    useEffect(() => {
+        close(); // Close navbar on route change
+    }, [matches, close]);
 
     const handleSignOut = async () => {
         await logout();
@@ -62,28 +70,28 @@ export default function Shell() {
                     <HeaderSlotRenderer />
                 </AppShell.Header>
                 <AppShell.Navbar p="md">
-                    <Box className="flex flex-row items-center gap-4">
-                        <Avatar
-                            size="lg"
-                            name={user?.name || ''}
-                        />
-                        <Title
-                            size="h3"
-                        >
-                            {user?.name || user?.email}
-                        </Title>
-                    </Box>
+                    <UserName user={user} />
                     <Divider my="lg" />
+                    {NAVIGATION_ITEMS.map((item) => (
+                        <NavItem
+                            key={item.title}
+                            leftIcon={item.leftIcon}
+                            title={item.title}
+                            to={item.to}
+                        />
+                    ))}
+                    <Divider my="lg" />
+                    <ColorSchemeSwitch />
+                    <div className="flex-grow-1" />
                     <Button
                         fullWidth
                         color="red"
                         variant="light"
+                        size="md"
                         onClick={handleSignOut}
                     >
                         Sign Out
                     </Button>
-                    <div className="flex-grow-1" />
-                    <ColorSchemeSwitch />
                 </AppShell.Navbar>
 
                 <AppShell.Main

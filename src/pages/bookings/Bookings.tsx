@@ -6,14 +6,24 @@ import { useBookingsFromTodayHash } from '@/store/server/bookings/hooks';
 import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Turf } from '@/lib/firebase/firestore/turfs';
+import { useUsersHash } from '@/store/server/users/hooks';
+import {
+    Box, Button, Drawer, Indicator, Title, Transition,
+} from '@mantine/core';
+import { BOOKING_STATUS } from '@/store/server/bookings/constants';
+import { IconCalendarClock } from '@tabler/icons-react';
+import { PageLoader } from '@/components/Loader';
 import TurfSelect from '../turfs/components/TurfSelect';
+import { AdminBooking } from './components/AdminBooking';
 
 export default function Bookings() {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [selectedTimeSlots, setSelectedTimeSlots] = useState<Dayjs[]>([]);
     const [selectedTurf, setSelectedTurf] = useState<Turf>();
+    const [showBookingDrawer, setShowBookingDrawer] = useState(false);
     const { setHeaderSlot } = useHeaderSlot();
-    const { bookingsByDateTimeslot } = useBookingsFromTodayHash(selectedTurf?.turfId || '');
+    const { bookingsByDateTimeslot, isLoading: isLoadingBookings } = useBookingsFromTodayHash(selectedTurf?.turfId || '');
+    const { usersById, isLoading: isLoadingUsers } = useUsersHash();
 
     useEffect(() => {
         setHeaderSlot(
@@ -24,22 +34,47 @@ export default function Bookings() {
         );
     }, [setHeaderSlot, selectedTurf, setSelectedTurf]);
 
+    if (isLoadingBookings || isLoadingUsers) return (<PageLoader />);
+
+    const handleOnBook = () => {
+        setShowBookingDrawer(false);
+        setSelectedTimeSlots([]);
+    };
+
     const renderBlockContent = (params) => {
         const { bookings } = params;
         const [booking] = bookings || [];
-        if (booking) {
+        const user = usersById[booking?.userId || ''];
+        if (booking && user) {
             return (
-                <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold">{booking.userId}</span>
-                    <span className="text-xs text-gray-500">{booking.turfId}</span>
-                </div>
+                <Box
+                    bg="blue.1"
+                    h="100%"
+                    className="flex flex-col gap-1 p-2"
+                >
+                    <Indicator
+                        inline
+                        offset={4}
+                        withBorder
+                        color={booking.status === BOOKING_STATUS.CONFIRMED ? 'blue.6' : 'red.5'}
+                        zIndex={1}
+                        size={12}
+                    />
+                    <Title
+                        size="lg"
+                        fw={500}
+                        c="dark.4"
+                    >
+                        { user.name }
+                    </Title>
+                </Box>
             );
         }
         return '';
     };
 
     return (
-        <div className="flex flex-col grow h-full w-full gap-4">
+        <div className="flex flex-col grow h-full w-full gap-4 position-relative">
             <DateSelect
                 selectedDate={selectedDate}
                 onChangeDate={setSelectedDate}
@@ -51,6 +86,48 @@ export default function Bookings() {
                 unavailableTimeslots={bookingsByDateTimeslot[createDateKey(dayjs(selectedDate).toDate())]}
                 renderBlockContent={renderBlockContent}
             />
+            <Transition
+                mounted={Boolean(selectedTimeSlots.length)}
+                transition="slide-left"
+                duration={200}
+            >
+                {(styles) => (
+                    <Button
+                        tt="uppercase"
+                        pos="absolute"
+                        m="lg"
+                        size="md"
+                        bottom={0}
+                        right={0}
+                        style={styles}
+                        bg="lime"
+                        c="white"
+                        leftSection={(
+                            <IconCalendarClock
+                                size={24}
+                                color="white"
+                            />
+                        )}
+                        onClick={() => {
+                            setShowBookingDrawer(true);
+                        }}
+                    >
+                        Book Slots
+                    </Button>
+                )}
+            </Transition>
+            <Drawer
+                opened={showBookingDrawer}
+                onClose={() => setShowBookingDrawer(false)}
+                size="lg"
+                position="bottom"
+            >
+                <AdminBooking
+                    selectedTimeSlots={selectedTimeSlots}
+                    turf={selectedTurf as Turf}
+                    onBook={handleOnBook}
+                />
+            </Drawer>
         </div>
     );
 }

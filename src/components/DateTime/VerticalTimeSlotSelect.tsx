@@ -24,6 +24,10 @@ interface VerticalTimeSlotSelectProps {
         isUnavailable: boolean,
         bookings: Booking[],
     }) => React.ReactNode;
+
+    unavailableColor?: string;
+    allowUnvailableClick?: boolean;
+    onClickUnavailableBlock?: (hour: Dayjs, bookings: Booking[]) => void;
 }
 
 const BLOCK_HEIGHT = 60;
@@ -38,6 +42,9 @@ export default function VerticalTimeSlotSelect({
     onChange,
     unavailableTimeslots,
     renderBlockContent,
+    onClickUnavailableBlock = () => {},
+    unavailableColor = 'gray.4',
+    allowUnvailableClick = false,
 }: VerticalTimeSlotSelectProps) {
     const selectedDate = dayjs(_selectedDate);
     const hourBlocks = getHourBlocks(selectedDate);
@@ -55,7 +62,12 @@ export default function VerticalTimeSlotSelect({
     };
 
     const handleBlockClick = (idx: number) => {
-        if (isBlockUnavailable(idx)) return;
+        if (isBlockUnavailable(idx)) {
+            const hour = hourBlocks[idx];
+            const bookings = unavailableTimeslots && unavailableTimeslots[createTimeslotKey(hour)];
+            onClickUnavailableBlock(hour, bookings || []);
+            return;
+        }
 
         if (!selection) {
             setSelection({ start: idx, end: idx });
@@ -92,7 +104,7 @@ export default function VerticalTimeSlotSelect({
 
     const getBlockBg = (idx: number) => {
         if (isBlockUnavailable(idx)) {
-            return 'gray.4';
+            return unavailableColor;
         }
         return isBlockSelected(idx) ? 'lime' : 'lime.2';
     };
@@ -156,7 +168,11 @@ export default function VerticalTimeSlotSelect({
                                     h={BLOCK_HEIGHT}
                                     bg={getBlockBg(idx)}
                                     w="100%"
-                                    className={`${unavailable ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}`}
+                                    className={`${
+                                        ((unavailable && !allowUnvailableClick && !renderBlockContent))
+                                            ? 'cursor-not-allowed pointer-events-none'
+                                            : 'cursor-pointer'
+                                    }`}
                                     onClick={() => handleBlockClick(idx)}
                                 >
                                     {renderBlockContent ? renderBlockContent({
@@ -185,4 +201,7 @@ export default function VerticalTimeSlotSelect({
 VerticalTimeSlotSelect.defaultProps = {
     unavailableTimeslots: {},
     renderBlockContent: () => '',
+    unavailableColor: 'gray.4',
+    allowUnvailableClick: false,
+    onClickUnavailableBlock: () => {},
 };

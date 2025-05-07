@@ -4,12 +4,11 @@ import { PageLoader } from '@/components/Loader';
 import AppShell from './AppShell';
 
 export function ProtectedLayout() {
-    const { loading, user } = useAuth();
+    const { loading, user, loginPending } = useAuth();
 
-    if (loading) return <PageLoader />;
+    if (loading || loginPending) return <PageLoader />;
 
     if (!user) {
-        // Pass the current location as state to /login
         return <Navigate to="/login" />;
     }
 

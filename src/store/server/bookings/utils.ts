@@ -58,7 +58,7 @@ export const createBookingPayload = (bookingDetails: BookingDetails, turf: Turf,
         },
         totalAmount: bookingDetails.totalAmount,
         turfId: turf.turfId,
-        userId: auth.user.uid,
+        userId: auth.user.userId,
         status: BOOKING_STATUS.PENDING,
     };
 

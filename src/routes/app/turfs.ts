@@ -6,4 +6,7 @@ export const turfsRoute = createRoute({
     path: '/turfs',
     component: Turfs,
     getParentRoute: () => appRoute,
+    staticData: {
+        title: 'Turfs',
+    },
 });

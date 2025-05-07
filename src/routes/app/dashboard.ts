@@ -12,4 +12,8 @@ export const dashboardRoute = createRoute({
             throw redirect({ to: '/' });
         }
     },
+    staticData: {
+        disableNavBar: true,
+        title: 'Dashboard',
+    },
 });

@@ -1,28 +1,43 @@
-import { ActionIcon, useMantineColorScheme, useMantineTheme } from '@mantine/core';
-import { IconMoon, IconMoonFilled } from '@tabler/icons-react';
+import {
+    Box, Switch, Title, useMantineColorScheme,
+} from '@mantine/core';
+import { IconMoon } from '@tabler/icons-react';
 
 export default function ColorSchemeSwitch() {
-    const theme = useMantineTheme();
     const { colorScheme, setColorScheme } = useMantineColorScheme();
 
+    const isDark = colorScheme === 'dark';
+
+    const onChange = (event) => {
+        setColorScheme(event.currentTarget.checked ? 'dark' : 'light');
+    };
+
     return (
-        <ActionIcon
-            variant="subtle"
-            size="xl"
-            ml="auto"
-            onClick={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}
+        <Box
+            px="xs"
+            py="md"
+            className="flex flex-row items-center :hover:opacity-80 cursor-pointer"
         >
-            {colorScheme === 'dark' ? (
-                <IconMoonFilled
-                    color={theme.colors.lime[6]}
-                    size={32}
-                />
-            ) : (
+            <Box
+                mr="sm"
+                p={0}
+            >
                 <IconMoon
-                    color={theme.colors.lime[6]}
-                    size={32}
+                    size={24}
                 />
-            )}
-        </ActionIcon>
+            </Box>
+            <Title
+                size="h3"
+            >
+                Dark Mode
+            </Title>
+            <Switch
+                ml="auto"
+                checked={isDark}
+                onChange={onChange}
+                size="lg"
+                color="lime"
+            />
+        </Box>
     );
 }
