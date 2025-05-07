@@ -6,7 +6,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@lib/firebase';
 import { PageLoader } from '@/components/Loader';
-import { getOrCreateUser, User } from '@/lib/firebase/firestore/users';
+import { getOrCreateUser, listenToUserDoc, User } from '@/lib/firebase/firestore/users';
 import { notifications } from '@mantine/notifications';
 
 export interface AuthContextType {
@@ -71,8 +71,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }), [user, loading, loginPending]);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+        let unsubscribeUserDoc: (() => void) | null = null;
+        const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
             if (!firebaseUser) {
+                if (unsubscribeUserDoc) unsubscribeUserDoc();
                 setUser(null as unknown as User);
                 setLoading(false);
                 return;
@@ -80,9 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             getOrCreateUser(firebaseUser).then((userData) => {
                 setUser(userData);
                 setLoading(false);
+                // Listen to real-time updates on user doc using utility
+                if (unsubscribeUserDoc) unsubscribeUserDoc();
+                unsubscribeUserDoc = listenToUserDoc(userData.userId, (updatedUser) => setUser(updatedUser));
             });
         });
-        return unsubscribe;
+        return () => {
+            unsubscribeAuth();
+            if (unsubscribeUserDoc) unsubscribeUserDoc();
+        };
     }, []);
 
     if (loading) {

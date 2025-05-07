@@ -10,6 +10,7 @@ import {
     getDocs,
     setDoc,
     addDoc,
+    onSnapshot,
 } from 'firebase/firestore';
 import { User as FirebaseUser } from 'firebase/auth';
 import { db } from '../db';
@@ -100,3 +101,12 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
     };
     return createUser(newUser);
 };
+
+export function listenToUserDoc(userId: string, onChange: (user: User) => void): () => void {
+    const userDocRef = doc(db, 'users', userId);
+    return onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            onChange({ ...(docSnap.data() as User) });
+        }
+    });
+}

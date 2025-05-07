@@ -132,7 +132,7 @@ export default function Booking() {
             </Button>
             <Drawer
                 opened={showContactDrawer}
-                onClose={onCloseContactDrawer}
+                onClose={() => setShowContactDrawer(false)}
                 size="sm"
                 position="bottom"
             >
