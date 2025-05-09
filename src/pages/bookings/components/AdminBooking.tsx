@@ -20,6 +20,8 @@ import { useCreateBooking } from '@/store/server/bookings';
 import { notifications } from '@mantine/notifications';
 import { IconRosetteDiscountCheckFilled } from '@tabler/icons-react';
 import CreateUser from '@/pages/users/components/CreateUser';
+import { getCurrentPricePerHour } from '@/pages/create-turf/utils';
+import { getTotalSlotHours } from '@/lib/dates/utils';
 
 interface AdminBookingProps {
     selectedTimeSlots: Dayjs[];
@@ -33,6 +35,14 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
 
     const theme = useMantineTheme();
     const createBooking = useCreateBooking();
+
+    const totalAmount = useMemo(() => {
+        const pricingRules = turf && turf.pricingRules ? turf.pricingRules : [];
+        const currentPricePerHour = getCurrentPricePerHour(pricingRules);
+        const totalSlotHours = getTotalSlotHours(selectedTimeSlots);
+        const total = currentPricePerHour * totalSlotHours;
+        return total;
+    }, [turf, selectedTimeSlots]);
 
     const slot = useMemo(() => {
         if (selectedTimeSlots.length === 0) {
@@ -54,7 +64,7 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
             userId: '',
             turfId: turf.turfId,
             slot,
-            totalAmount: selectedTimeSlots.length * turf.pricePerHour,
+            totalAmount,
             advancePaid: 0,
             paymentId: '',
             cancellationReason: '',

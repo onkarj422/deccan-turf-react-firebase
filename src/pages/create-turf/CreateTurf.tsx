@@ -1,20 +1,55 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useAuth } from '@/context';
 import { Turf } from '@/lib/firebase/firestore/turfs';
-import { useCreateTurf } from '@/store/server/turfs';
+import { useCreateTurf, useFetchTurfs, useUpdateTurf } from '@/store/server/turfs';
 import {
-    Box, Button, NumberInput, TextInput,
+    Box, Button, Group,
+    Stepper,
+    Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import { GeoPoint, Timestamp } from 'firebase/firestore';
+import { useEffect, useMemo, useState } from 'react';
+import { useHeaderSlot } from '@/context/HeaderSlotContext';
+import { validatePricingRules } from './utils';
+import DetailsForm from './components/DetailsForm';
+import PricingRulesForm from './components/PricingRulesForm';
+import AdvancePercentageForm from './components/AdvancePercentageForm';
+import TimingsForm from './components/TimingsForm';
+import TurfSummary from './components/TurfSummary';
+import { DEFAULT_ADVANCE_PERCENTAGE, DEFAULT_TIMINGS, FALLBACK_RULE } from './constants';
 
 export default function CreateTurf() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const createTurf = useCreateTurf();
+    const updateTurf = useUpdateTurf();
+    const { turfId } = useParams({ strict: false });
+    const { data: turfs } = useFetchTurfs();
+    const [active, setActive] = useState(0);
+    const { setTitleSlot } = useHeaderSlot();
+
+    const turf = useMemo(() => turfs?.find((_turf) => _turf.turfId === turfId), [turfId, turfs]);
+
+    useEffect(() => {
+        if (turfId) {
+            setTitleSlot(
+                <Title
+                    ml="sm"
+                    ta="center"
+                    size="h3"
+                >
+                    Edit Turf
+                </Title>,
+            );
+        }
+        return () => {
+            setTitleSlot(null);
+        };
+    }, [setTitleSlot, turfId]);
 
     const form = useForm<Turf>({
         mode: 'controlled',
@@ -34,13 +69,10 @@ export default function CreateTurf() {
             amenities: ['Football', 'Cricket'],
             createdBy: user.userId,
             createdAt: Timestamp.now(),
-            pricePerHour: 0,
-            advanceAmount: 0,
+            advancePercentage: DEFAULT_ADVANCE_PERCENTAGE,
             images: ['/deccan-turf-banner2.png'],
-            timings: {
-                open: '08:00',
-                close: '22:00',
-            },
+            pricingRules: [FALLBACK_RULE],
+            timings: DEFAULT_TIMINGS,
         },
         validate: (values) => ({
             name: values.name ? null : 'Name is required',
@@ -49,14 +81,62 @@ export default function CreateTurf() {
                 if (!values.location.area) return 'Area is required';
                 return null;
             })(),
-            pricePerHour: values.pricePerHour > 0 ? null : 'Price is required',
-            advanceAmount: values.advanceAmount > 0 ? null : 'Advance amount is required',
+            pricingRules: validatePricingRules(values.pricingRules),
         }),
     });
+
+    useEffect(() => {
+        if (turf?.turfId) {
+            form.setValues(turf);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [turf]);
+
+    const nextStep = () => setActive((current) => {
+        let hasErrors = false;
+        if (current === 0) {
+            // Validate name and location fields
+            hasErrors = form.validateField('name').hasError
+                || form.validateField('location.addressLine').hasError
+                || form.validateField('location.area').hasError;
+        } else if (current === 1) {
+            hasErrors = form.validateField('pricingRules').hasError;
+        } else if (current === 2) {
+            hasErrors = form.validateField('advancePercentage').hasError;
+        } else if (current === 3) {
+            hasErrors = form.validateField('timings.open').hasError || form.validateField('timings.close').hasError;
+        }
+        if (hasErrors) {
+            return current;
+        }
+        return current < 4 ? current + 1 : current;
+    });
+
+    const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
     const handleClickCreate = () => {
         if (form.validate().hasErrors) return;
         const turfData = form.getValues();
+        if (turf?.turfId) {
+            turfData.turfId = turf.turfId;
+            updateTurf.mutate({
+                turfId: turf.turfId,
+                updatedData: turfData,
+            }, {
+                onSuccess: () => {
+                    form.reset();
+                    navigate({ to: `/app/turf/${turf.turfId}` });
+                },
+                onError: (error) => {
+                    notifications.show({
+                        title: 'Error',
+                        message: error.message,
+                        color: 'red',
+                    });
+                },
+            });
+            return;
+        }
         turfData.createdAt = Timestamp.now();
         createTurf.mutate(turfData, {
             onSuccess: () => {
@@ -73,68 +153,98 @@ export default function CreateTurf() {
         });
     };
 
+    const primaryActions = {
+        next: (
+            <Button
+                key="next"
+                c="white"
+                bg="lime"
+                size="md"
+                tt="uppercase"
+                onClick={nextStep}
+            >
+                Next
+            </Button>
+        ),
+        back: (
+            <Button
+                key="back"
+                c="lime"
+                color="lime"
+                variant="outline"
+                size="md"
+                tt="uppercase"
+            >
+                Back
+            </Button>
+        ),
+        confirm: (
+            <Button
+                key="confirm"
+                c="white"
+                bg="lime"
+                size="md"
+                tt="uppercase"
+                onClick={handleClickCreate}
+                leftSection={<IconPlus size={20} />}
+                disabled={createTurf.isPending}
+                loading={createTurf.isPending}
+            >
+                Confirm
+            </Button>
+        ),
+    };
+
     return (
-        <div className="flex flex-col grow h-full w-full gap-4">
+        <div className="flex flex-col grow gap-1">
             <Box
                 h="100%"
                 className="flex flex-col gap-4"
             >
-                <TextInput
-                    label="Name"
-                    placeholder="Enter turf name"
-                    key={form.key('name')}
-                    {...form.getInputProps('name')}
-                />
-                <TextInput
-                    label="Address Line"
-                    placeholder="Enter address line"
-                    type="text"
-                    key={form.key('location.addressLine')}
-                    value={form.values.location.addressLine}
-                    onChange={(event) => {
-                        form.setFieldValue('location.addressLine', event.currentTarget.value);
-                    }}
-                />
-                <TextInput
-                    label="Area"
-                    placeholder="Enter area"
-                    type="text"
-                    key={form.key('location.area')}
-                    value={form.values.location.area}
-                    onChange={(event) => {
-                        form.setFieldValue('location.area', event.currentTarget.value);
-                    }}
-                />
-                <NumberInput
-                    label="Price"
-                    placeholder="Enter price per hour"
-                    hideControls
-                    key={form.key('pricePerHour')}
-                    {...form.getInputProps('pricePerHour')}
-                />
-                <NumberInput
-                    label="Advance"
-                    placeholder="Enter min. advance amount"
-                    hideControls
-                    key={form.key('advanceAmount')}
-                    {...form.getInputProps('advanceAmount')}
-                />
-                <div className="grow" />
-                <Button
-                    key="book"
-                    c="lime"
+                <Stepper
+                    active={active}
                     color="lime"
-                    size="md"
-                    tt="uppercase"
-                    variant="outline"
-                    onClick={handleClickCreate}
-                    leftSection={<IconPlus size={20} />}
-                    disabled={createTurf.isPending}
-                    loading={createTurf.isPending}
+                    wrap={false}
                 >
-                    Create New Turf
-                </Button>
+                    <Stepper.Step label="Turf Details">
+                        <DetailsForm form={form} />
+                    </Stepper.Step>
+                    <Stepper.Step label="Pricing">
+                        <PricingRulesForm form={form} />
+                    </Stepper.Step>
+                    <Stepper.Step label="Advance Payment">
+                        <AdvancePercentageForm form={form} />
+                    </Stepper.Step>
+                    <Stepper.Step label="Timings">
+                        <TimingsForm form={form} />
+                    </Stepper.Step>
+                    <Stepper.Completed>
+                        <TurfSummary turf={form.values} />
+                    </Stepper.Completed>
+                </Stepper>
             </Box>
+            <div className="grow" />
+            <Group
+                w="100%"
+                px="sm"
+                pt="sm"
+                justify="end"
+                align="center"
+            >
+                {active !== 0 && active !== 5 && (
+                    <Button
+                        c="lime"
+                        color="lime"
+                        variant="outline"
+                        size="md"
+                        tt="uppercase"
+                        onClick={prevStep}
+                    >
+                        Back
+                    </Button>
+                )}
+                {active === 4 ? primaryActions.confirm : primaryActions.next}
+            </Group>
         </div>
     );
 }

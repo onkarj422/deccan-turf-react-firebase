@@ -15,7 +15,9 @@ import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
 import { Route as AppIndexImport } from './routes/app/index'
 import { Route as AppTurfsImport } from './routes/app/turfs'
+import { Route as AppTurfImport } from './routes/app/turf'
 import { Route as AppPaymentImport } from './routes/app/payment'
+import { Route as AppEditTurfImport } from './routes/app/edit-turf'
 import { Route as AppDashboardImport } from './routes/app/dashboard'
 import { Route as AppCreateTurfImport } from './routes/app/create-turf'
 import { Route as AppConfirmationImport } from './routes/app/confirmation'
@@ -49,9 +51,21 @@ const AppTurfsRoute = AppTurfsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AppTurfRoute = AppTurfImport.update({
+  id: '/app/turf',
+  path: '/app/turf',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AppPaymentRoute = AppPaymentImport.update({
   id: '/app/payment',
   path: '/app/payment',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AppEditTurfRoute = AppEditTurfImport.update({
+  id: '/app/edit-turf',
+  path: '/app/edit-turf',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -151,11 +165,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardImport
       parentRoute: typeof rootRoute
     }
+    '/app/edit-turf': {
+      id: '/app/edit-turf'
+      path: '/app/edit-turf'
+      fullPath: '/app/edit-turf'
+      preLoaderRoute: typeof AppEditTurfImport
+      parentRoute: typeof rootRoute
+    }
     '/app/payment': {
       id: '/app/payment'
       path: '/app/payment'
       fullPath: '/app/payment'
       preLoaderRoute: typeof AppPaymentImport
+      parentRoute: typeof rootRoute
+    }
+    '/app/turf': {
+      id: '/app/turf'
+      path: '/app/turf'
+      fullPath: '/app/turf'
+      preLoaderRoute: typeof AppTurfImport
       parentRoute: typeof rootRoute
     }
     '/app/turfs': {
@@ -186,7 +214,9 @@ export interface FileRoutesByFullPath {
   '/app/confirmation': typeof AppConfirmationRoute
   '/app/create-turf': typeof AppCreateTurfRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/edit-turf': typeof AppEditTurfRoute
   '/app/payment': typeof AppPaymentRoute
+  '/app/turf': typeof AppTurfRoute
   '/app/turfs': typeof AppTurfsRoute
   '/app': typeof AppIndexRoute
 }
@@ -200,7 +230,9 @@ export interface FileRoutesByTo {
   '/app/confirmation': typeof AppConfirmationRoute
   '/app/create-turf': typeof AppCreateTurfRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/edit-turf': typeof AppEditTurfRoute
   '/app/payment': typeof AppPaymentRoute
+  '/app/turf': typeof AppTurfRoute
   '/app/turfs': typeof AppTurfsRoute
   '/app': typeof AppIndexRoute
 }
@@ -215,7 +247,9 @@ export interface FileRoutesById {
   '/app/confirmation': typeof AppConfirmationRoute
   '/app/create-turf': typeof AppCreateTurfRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/edit-turf': typeof AppEditTurfRoute
   '/app/payment': typeof AppPaymentRoute
+  '/app/turf': typeof AppTurfRoute
   '/app/turfs': typeof AppTurfsRoute
   '/app/': typeof AppIndexRoute
 }
@@ -231,7 +265,9 @@ export interface FileRouteTypes {
     | '/app/confirmation'
     | '/app/create-turf'
     | '/app/dashboard'
+    | '/app/edit-turf'
     | '/app/payment'
+    | '/app/turf'
     | '/app/turfs'
     | '/app'
   fileRoutesByTo: FileRoutesByTo
@@ -244,7 +280,9 @@ export interface FileRouteTypes {
     | '/app/confirmation'
     | '/app/create-turf'
     | '/app/dashboard'
+    | '/app/edit-turf'
     | '/app/payment'
+    | '/app/turf'
     | '/app/turfs'
     | '/app'
   id:
@@ -257,7 +295,9 @@ export interface FileRouteTypes {
     | '/app/confirmation'
     | '/app/create-turf'
     | '/app/dashboard'
+    | '/app/edit-turf'
     | '/app/payment'
+    | '/app/turf'
     | '/app/turfs'
     | '/app/'
   fileRoutesById: FileRoutesById
@@ -272,7 +312,9 @@ export interface RootRouteChildren {
   AppConfirmationRoute: typeof AppConfirmationRoute
   AppCreateTurfRoute: typeof AppCreateTurfRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppEditTurfRoute: typeof AppEditTurfRoute
   AppPaymentRoute: typeof AppPaymentRoute
+  AppTurfRoute: typeof AppTurfRoute
   AppTurfsRoute: typeof AppTurfsRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -286,7 +328,9 @@ const rootRouteChildren: RootRouteChildren = {
   AppConfirmationRoute: AppConfirmationRoute,
   AppCreateTurfRoute: AppCreateTurfRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppEditTurfRoute: AppEditTurfRoute,
   AppPaymentRoute: AppPaymentRoute,
+  AppTurfRoute: AppTurfRoute,
   AppTurfsRoute: AppTurfsRoute,
   AppIndexRoute: AppIndexRoute,
 }
@@ -309,7 +353,9 @@ export const routeTree = rootRoute
         "/app/confirmation",
         "/app/create-turf",
         "/app/dashboard",
+        "/app/edit-turf",
         "/app/payment",
+        "/app/turf",
         "/app/turfs",
         "/app/"
       ]
@@ -338,8 +384,14 @@ export const routeTree = rootRoute
     "/app/dashboard": {
       "filePath": "app/dashboard.ts"
     },
+    "/app/edit-turf": {
+      "filePath": "app/edit-turf.ts"
+    },
     "/app/payment": {
       "filePath": "app/payment.ts"
+    },
+    "/app/turf": {
+      "filePath": "app/turf.ts"
     },
     "/app/turfs": {
       "filePath": "app/turfs.ts"

@@ -21,6 +21,10 @@ export default function Turfs() {
         navigate({ to: `/app/book/${turfId}` });
     };
 
+    const handleOnClickCard = (turf) => {
+        navigate({ to: `/app/turf/${turf.turfId}` });
+    };
+
     return (
         <div className="flex flex-col grow h-full w-full gap-4">
             <Card
@@ -40,6 +44,7 @@ export default function Turfs() {
                                 key={turf.turfId}
                                 turf={turf}
                                 onBookNow={handleBookNow}
+                                onClick={handleOnClickCard}
                             />
                         ))}
                     </SimpleGrid>

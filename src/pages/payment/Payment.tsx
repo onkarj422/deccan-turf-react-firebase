@@ -20,6 +20,8 @@ import { fetchPayment } from '@/store/server/payments/endpoints';
 import { createPaymentPayload } from '@/store/server/payments/utils';
 import { BOOKING_STATUS } from '@/store/server/bookings/constants';
 import { AdvancePaymentCard, BookingSummaryCard, SlotSummaryCard } from './components';
+import { getCurrentPricePerHour } from '../create-turf/utils';
+import { DEFAULT_ADVANCE_PERCENTAGE } from '../create-turf/constants';
 
 export default function Payment() {
     const [isAdvancedPayment, setIsAdvancedPayment] = useState(false);
@@ -32,7 +34,8 @@ export default function Payment() {
     const slots = bookingDetails?.slot.times || [];
 
     const totalHours = getTotalSlotHours(slots);
-    const minAdvance = turf ? turf.advanceAmount * totalHours : 0;
+    const currentPricePerHour = getCurrentPricePerHour(turf?.pricingRules || []);
+    const minAdvance = (currentPricePerHour * (turf ? turf.advancePercentage : DEFAULT_ADVANCE_PERCENTAGE)) / 100;
 
     const finalAmount = useMemo(() => {
         if (isAdvancedPayment) {
@@ -179,7 +182,7 @@ export default function Payment() {
             <BookingSummaryCard
                 venueName={turf.name}
                 totalHours={totalHours}
-                pricePerHour={turf.pricePerHour}
+                pricePerHour={currentPricePerHour}
                 minAdvance={minAdvance}
             />
             <AdvancePaymentCard

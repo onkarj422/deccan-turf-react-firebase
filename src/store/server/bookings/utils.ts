@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { createDateKey, createTimeslotKey, getTotalSlotHours } from '@/lib/dates/utils';
+import { createDateKey, createTimeslotKey } from '@/lib/dates/utils';
 import dayjs from 'dayjs';
 import { Booking } from '@/lib/firebase/firestore/bookings';
 import { BookingDetails } from '@/pages/booking/types';
@@ -44,8 +44,7 @@ export const createBookingsHash = (bookings: Booking[]): {
 
 export const createBookingPayload = (bookingDetails: BookingDetails, turf: Turf, auth: AuthContextType, isAdvancePayment: boolean): Booking => {
     const slots = bookingDetails.slot.times;
-    const totalHours = getTotalSlotHours(slots);
-    const minAdvance = turf ? turf.advanceAmount * totalHours : 0;
+    const minAdvance = bookingDetails.totalAmount * (turf.advancePercentage / 100);
     const bookingPayload = {
         bookingId: '', // Will be set by firestore
         advancePaid: isAdvancePayment ? minAdvance : bookingDetails.totalAmount,

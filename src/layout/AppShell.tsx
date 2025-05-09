@@ -18,6 +18,12 @@ function HeaderSlotRenderer() {
     return headerSlot;
 }
 
+function TitleSlotRenderer({ children }) {
+    const { titleSlot } = useHeaderSlot();
+    if (!titleSlot) return children || '';
+    return titleSlot;
+}
+
 export default function Shell() {
     const [opened, { toggle, close }] = useDisclosure();
     const { user, logout } = useAuth();
@@ -59,13 +65,15 @@ export default function Shell() {
                         hiddenFrom="sm"
                         size="md"
                     />
-                    <Title
-                        ml="sm"
-                        ta="center"
-                        size="h3"
-                    >
-                        {title}
-                    </Title>
+                    <TitleSlotRenderer>
+                        <Title
+                            ml="sm"
+                            ta="center"
+                            size="h3"
+                        >
+                            {title}
+                        </Title>
+                    </TitleSlotRenderer>
                     <div className="flex-grow-1" />
                     <HeaderSlotRenderer />
                 </AppShell.Header>
@@ -109,7 +117,7 @@ export default function Shell() {
                 <AppShell.Main
                     w="100%"
                     h="100%"
-                    className="flex flex-col"
+                    className="flex flex-col overflow-hidden"
                 >
                     <Outlet />
                 </AppShell.Main>

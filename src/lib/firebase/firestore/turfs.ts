@@ -11,9 +11,10 @@ import {
     setDoc,
 } from 'firebase/firestore';
 import { db } from '../db';
+import { PricingRule } from './types/bookings.types';
 
 export interface Turf {
-    advanceAmount: number; // The advance amount required for booking.
+    advancePercentage: number; // The advance amount required for booking.
     amenities: string[]; // List of amenities available at the turf.
     createdAt: Timestamp; // Timestamp when the turf was created.
     createdBy: string; // ID of the user who created the turf.
@@ -29,7 +30,7 @@ export interface Turf {
         state: string; // State where the turf is located.
     };
     name: string; // Name of the turf.
-    pricePerHour: number; // Price per hour for booking the turf.
+    pricingRules: PricingRule[]
     timings: {
         open: string; // Opening time of the turf.
         close: string; // Closing time of the turf.

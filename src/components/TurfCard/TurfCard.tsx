@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { JSX } from 'react';
 import {
     Card, Image, Text, Button, Group,
@@ -6,21 +7,38 @@ import {
     Title,
 } from '@mantine/core';
 import { Turf } from '@/lib/firebase/firestore/turfs';
+import { getCurrentPricePerHour } from '@/pages/create-turf/utils';
 
 interface TurfCardProps {
     turf: Turf
     onBookNow?: (turfId: string) => void;
+    onClick?: (turf: Turf) => void;
 }
 
 function TurfCard({
-    turf, onBookNow,
+    turf, onBookNow, onClick,
 }: TurfCardProps): JSX.Element {
+    const onClickCard = (event) => {
+        event.stopPropagation();
+        if (onClick) {
+            onClick(turf);
+        }
+    };
+
+    const onClickBookNow = (event) => {
+        event.stopPropagation();
+        if (onBookNow) {
+            onBookNow(turf.turfId);
+        }
+    };
+
     return (
         <Card
             padding="lg"
             radius="md"
             withBorder
             bg="var(--mantine-color-body)"
+            onClick={onClickCard}
         >
             <Card.Section
                 mb="xs"
@@ -57,11 +75,11 @@ function TurfCard({
                 <div>
                     <Text
                         fz="xl"
-                        fw={700}
+                        fw={600}
                         style={{ lineHeight: 1 }}
                     >
-                        Rs.
-                        {turf.pricePerHour}
+                        ₹
+                        {getCurrentPricePerHour(turf.pricingRules)}
                     </Text>
                     <Text
                         fz="sm"
@@ -79,7 +97,7 @@ function TurfCard({
                         radius="md"
                         tt="uppercase"
                         c="white"
-                        onClick={() => onBookNow(turf.turfId)}
+                        onClick={onClickBookNow}
                     >
                         Book Now
                     </Button>
@@ -91,6 +109,7 @@ function TurfCard({
 
 TurfCard.defaultProps = {
     onBookNow: undefined,
+    onClick: undefined,
 };
 
 export default TurfCard;

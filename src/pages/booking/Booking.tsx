@@ -3,7 +3,7 @@ import {
     Card, Title, Divider, Text, Button,
     Drawer,
 } from '@mantine/core';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { useFetchTurfs } from '@/store/server/turfs';
 import { PageLoader } from '@/components/Loader';
@@ -15,6 +15,7 @@ import TimeSlotSummary from '@/components/DateTime/TimeSlotSummary';
 import { useBookingStore } from '@/store/local/bookingStore';
 import { useAuth } from '@/context';
 import UpdatePhone from '../users/components/UpdatePhone';
+import { getCurrentPricePerHour } from '../create-turf/utils';
 
 export default function Booking() {
     const { turfId } = useParams({ strict: false });
@@ -31,6 +32,18 @@ export default function Booking() {
     // Fetch bookings starting from today
     const { bookingsByDateTimeslot, isLoading: isBookingsLoading } = useBookingsFromTodayHash();
 
+    const turf = turfs?.find((t) => t.turfId === turfId);
+
+    const totalAmount = useMemo(() => {
+        const pricingRules = turf && turf.pricingRules ? turf.pricingRules : [];
+        const currentPricePerHour = getCurrentPricePerHour(pricingRules);
+        const totalSlotHours = getTotalSlotHours(selectedTimeSlots);
+        const total = currentPricePerHour * totalSlotHours;
+        return total;
+    }, [turf, selectedTimeSlots]);
+
+    if (!turf) return <div>Turf not found</div>;
+
     if (isLoading || isBookingsLoading) return <PageLoader />;
     if (isError) {
         return (
@@ -41,10 +54,6 @@ export default function Booking() {
         );
     }
 
-    const turf = turfs?.find((t) => t.turfId === turfId);
-
-    if (!turf) return <div>Turf not found</div>;
-
     const continueBooking = () => {
         // Booking payload (see Booking interface)
         const bookingDetails = {
@@ -52,7 +61,7 @@ export default function Booking() {
                 date: dayjs(selectedDate),
                 times: selectedTimeSlots,
             },
-            totalAmount: turf.pricePerHour * getTotalSlotHours(selectedTimeSlots),
+            totalAmount,
             turfId: turf.turfId,
         };
 
@@ -114,7 +123,7 @@ export default function Booking() {
                 className="text-center"
             >
                 Total Price - ₹&nbsp;
-                {turf.pricePerHour * (selectedTimeSlots ? selectedTimeSlots.length : 1)}
+                {totalAmount}
             </Text>
             <Divider />
             <Button
