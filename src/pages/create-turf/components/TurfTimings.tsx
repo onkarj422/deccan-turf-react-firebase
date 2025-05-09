@@ -1,5 +1,5 @@
 import { Turf } from '@/lib/firebase/firestore/turfs';
-import { Box, Text, Title } from '@mantine/core';
+import { Box, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 
 interface TurfTimingsProps {
