@@ -5,7 +5,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconPhone } from '@tabler/icons-react';
+import { IconExclamationCircle, IconPhone } from '@tabler/icons-react';
 
 interface UpdatePhoneProps {
     onUpdate?: () => void;
@@ -45,6 +45,7 @@ export default function UpdatePhone({ onUpdate }: UpdatePhoneProps) {
                 onError: (error) => {
                     notifications.show({
                         title: 'Error',
+                        icon: <IconExclamationCircle size={16} />,
                         message: error.message,
                         color: 'red',
                     });

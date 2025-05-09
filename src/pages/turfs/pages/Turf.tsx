@@ -2,6 +2,7 @@ import { useAuth } from '@/context';
 import TurfSummary from '@/pages/create-turf/components/TurfSummary';
 import { useDeleteTurf, useFetchTurfs } from '@/store/server/turfs';
 import { Button, Group } from '@mantine/core';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
 
@@ -46,6 +47,7 @@ export default function Turf() {
                         size="md"
                         tt="uppercase"
                         onClick={onClickDelete}
+                        leftSection={<IconTrash size={16} />}
                     >
                         Delete
                     </Button>
@@ -56,6 +58,7 @@ export default function Turf() {
                         size="md"
                         tt="uppercase"
                         onClick={onClickEdit}
+                        leftSection={<IconPencil size={16} />}
                     >
                         Edit
                     </Button>

@@ -12,14 +12,18 @@ import {
 } from '@mantine/core';
 import { BOOKING_STATUS } from '@/store/server/bookings/constants';
 import { IconCalendarClock } from '@tabler/icons-react';
+import { Booking } from '@/lib/firebase/firestore/bookings';
 import TurfSelect from '../turfs/components/TurfSelect';
 import { AdminBooking } from './components/AdminBooking';
+import BookingOverview from './components/BookingOverview';
 
 export default function Bookings() {
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
     const [selectedTimeSlots, setSelectedTimeSlots] = useState<Dayjs[]>([]);
     const [selectedTurf, setSelectedTurf] = useState<Turf>();
     const [showBookingDrawer, setShowBookingDrawer] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState<Booking>();
+    const [showSlotDrawer, setShowSlotDrawer] = useState(false);
     const { setHeaderSlot } = useHeaderSlot();
     const { bookingsByDateTimeslot, isLoading: isLoadingBookings } = useBookingsFromTodayHash({
         turfId: selectedTurf?.turfId,
@@ -41,6 +45,16 @@ export default function Bookings() {
         setSelectedTimeSlots([]);
     };
 
+    const handleOnClickBookedSlot = (booking: Booking) => {
+        setShowSlotDrawer(true);
+        setSelectedBooking(booking);
+    };
+
+    const onCloseSlotDrawer = () => {
+        setShowSlotDrawer(false);
+        setSelectedBooking(undefined);
+    };
+
     const renderBlockContent = (params) => {
         const { bookings } = params;
         const [booking] = bookings || [];
@@ -51,6 +65,10 @@ export default function Bookings() {
                     bg="blue.1"
                     h="100%"
                     className="flex flex-col gap-1 p-2"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleOnClickBookedSlot(booking);
+                    }}
                 >
                     <Indicator
                         inline
@@ -89,6 +107,7 @@ export default function Bookings() {
                 selectedTimeSlots={selectedTimeSlots}
                 onChange={setSelectedTimeSlots}
                 unavailableTimeslots={bookingsByDateTimeslot[createDateKey(dayjs(selectedDate).toDate())]}
+                unavailableColor="blue.1"
                 renderBlockContent={renderBlockContent}
             />
             <Transition
@@ -124,7 +143,7 @@ export default function Bookings() {
             <Drawer
                 opened={showBookingDrawer}
                 onClose={() => setShowBookingDrawer(false)}
-                size="lg"
+                size="xl"
                 position="bottom"
             >
                 <AdminBooking
@@ -132,6 +151,19 @@ export default function Bookings() {
                     turf={selectedTurf as Turf}
                     onBook={handleOnBook}
                 />
+            </Drawer>
+            <Drawer
+                opened={showSlotDrawer}
+                onClose={onCloseSlotDrawer}
+                size="xl"
+                position="bottom"
+            >
+                {selectedBooking && (
+                    <BookingOverview
+                        booking={selectedBooking}
+                        onCancel={onCloseSlotDrawer}
+                    />
+                )}
             </Drawer>
         </div>
     );

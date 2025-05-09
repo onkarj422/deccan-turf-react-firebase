@@ -8,6 +8,7 @@ import { auth } from '@lib/firebase';
 import { PageLoader } from '@/components/Loader';
 import { getOrCreateUser, listenToUserDoc, User } from '@/lib/firebase/firestore/users';
 import { notifications } from '@mantine/notifications';
+import { IconExclamationCircle } from '@tabler/icons-react';
 
 export interface AuthContextType {
     user: User;
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
 const showLoginError = (error: Error) => {
     notifications.show({
         title: error.name || 'Error',
+        icon: <IconExclamationCircle size={16} />,
         message: error.message || 'Unexpected error while logging in',
         color: 'red',
     });

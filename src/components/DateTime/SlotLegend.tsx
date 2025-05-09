@@ -1,6 +1,11 @@
 import { Box, Group, Text } from '@mantine/core';
 
-export default function SlotLegend() {
+interface SlotLegendProps {
+    aviailableColor?: string;
+    bookedColor?: string;
+}
+
+export default function SlotLegend({ aviailableColor = 'lime.2', bookedColor = 'gray.4' }: SlotLegendProps) {
     return (
         <Box className="flex justify-end">
             <Group
@@ -14,7 +19,7 @@ export default function SlotLegend() {
                     <Box
                         w={10}
                         h={10}
-                        bg="lime.2"
+                        bg={aviailableColor}
                         style={{ borderRadius: '50%' }}
                     />
                     <Text size="xs">Available</Text>
@@ -26,7 +31,7 @@ export default function SlotLegend() {
                     <Box
                         w={10}
                         h={10}
-                        bg="gray.4"
+                        bg={bookedColor}
                         style={{ borderRadius: '50%' }}
                     />
                     <Text size="xs">Booked</Text>
@@ -35,3 +40,8 @@ export default function SlotLegend() {
         </Box>
     );
 }
+
+SlotLegend.defaultProps = {
+    aviailableColor: 'lime.2',
+    bookedColor: 'gray.4',
+};

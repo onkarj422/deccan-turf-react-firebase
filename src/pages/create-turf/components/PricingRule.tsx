@@ -6,7 +6,7 @@ import {
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import {
-    IconPencil, IconTrash, IconCheck, IconX, IconPlus,
+    IconPencil, IconCheck, IconX, IconPlus,
 } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import { DAYS } from '../constants';
@@ -284,7 +284,7 @@ export default function PricingRule({
                 >
                     {onDelete && (
                         <Button
-                            leftSection={<IconTrash size={16} />}
+                            leftSection={<IconX size={16} />}
                             variant="light"
                             c="red"
                             color="red"

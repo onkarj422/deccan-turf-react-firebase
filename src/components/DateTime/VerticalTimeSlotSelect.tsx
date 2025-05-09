@@ -114,7 +114,7 @@ export default function VerticalTimeSlotSelect({
             mih={0}
         >
             {/* Legend for slot status aligned right */}
-            <SlotLegend />
+            <SlotLegend bookedColor={unavailableColor} />
             <ScrollArea
                 type="auto"
                 scrollbarSize={6}
@@ -172,7 +172,10 @@ export default function VerticalTimeSlotSelect({
                                             ? 'cursor-not-allowed pointer-events-none'
                                             : 'cursor-pointer'
                                     }`}
-                                    onClick={() => handleBlockClick(idx)}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleBlockClick(idx);
+                                    }}
                                 >
                                     {renderBlockContent ? renderBlockContent({
                                         hour: h,

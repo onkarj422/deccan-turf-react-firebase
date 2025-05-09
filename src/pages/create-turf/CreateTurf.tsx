@@ -4,12 +4,13 @@ import { Turf } from '@/lib/firebase/firestore/turfs';
 import { useCreateTurf, useFetchTurfs, useUpdateTurf } from '@/store/server/turfs';
 import {
     Box, Button, Group,
+    LoadingOverlay,
     Stepper,
     Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconPlus } from '@tabler/icons-react';
+import { IconCircleCheck, IconExclamationCircle, IconPlus } from '@tabler/icons-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { GeoPoint, Timestamp } from 'firebase/firestore';
 import { useEffect, useMemo, useState } from 'react';
@@ -28,7 +29,7 @@ export default function CreateTurf() {
     const createTurf = useCreateTurf();
     const updateTurf = useUpdateTurf();
     const { turfId } = useParams({ strict: false });
-    const { data: turfs } = useFetchTurfs();
+    const { data: turfs, isLoading: isLoadingTurfs } = useFetchTurfs();
     const [active, setActive] = useState(0);
     const { setTitleSlot } = useHeaderSlot();
 
@@ -125,12 +126,19 @@ export default function CreateTurf() {
             }, {
                 onSuccess: () => {
                     form.reset();
+                    notifications.show({
+                        title: 'Success',
+                        message: 'Turf updated successfully',
+                        color: 'green',
+                        icon: <IconCircleCheck size={16} />,
+                    });
                     navigate({ to: `/app/turf/${turf.turfId}` });
                 },
                 onError: (error) => {
                     notifications.show({
                         title: 'Error',
                         message: error.message,
+                        icon: <IconExclamationCircle size={16} />,
                         color: 'red',
                     });
                 },
@@ -141,12 +149,19 @@ export default function CreateTurf() {
         createTurf.mutate(turfData, {
             onSuccess: () => {
                 form.reset();
+                notifications.show({
+                    title: 'Success',
+                    message: 'Turf created successfully',
+                    color: 'green',
+                    icon: <IconCircleCheck size={16} />,
+                });
                 navigate({ to: '/app/turfs' });
             },
             onError: (error) => {
                 notifications.show({
                     title: 'Error',
                     message: error.message,
+                    icon: <IconExclamationCircle size={16} />,
                     color: 'red',
                 });
             },
@@ -197,6 +212,11 @@ export default function CreateTurf() {
 
     return (
         <div className="flex flex-col grow gap-1">
+            <LoadingOverlay
+                visible={createTurf.isPending || updateTurf.isPending || isLoadingTurfs}
+                zIndex={1000}
+                overlayProps={{ radius: 'sm', blur: 2 }}
+            />
             <Box
                 h="100%"
                 className="flex flex-col gap-4"

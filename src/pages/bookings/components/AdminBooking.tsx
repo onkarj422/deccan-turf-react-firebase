@@ -7,8 +7,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Turf } from '@/lib/firebase/firestore/turfs';
 import { BOOKING_STATUS } from '@/store/server/bookings/constants';
 import {
-    Avatar,
-    Box, Button, Card, Group, Stepper,
+    Box, Button, Group, LoadingOverlay, Stepper,
     Text,
     Title,
     useMantineTheme,
@@ -18,10 +17,11 @@ import UserSelect from '@/pages/users/components/UserSelect';
 import { User } from '@/lib/firebase/firestore/users';
 import { useCreateBooking } from '@/store/server/bookings';
 import { notifications } from '@mantine/notifications';
-import { IconRosetteDiscountCheckFilled } from '@tabler/icons-react';
+import { IconExclamationCircle, IconRosetteDiscountCheckFilled } from '@tabler/icons-react';
 import CreateUser from '@/pages/users/components/CreateUser';
 import { getCurrentPricePerHour } from '@/pages/create-turf/utils';
 import { getTotalSlotHours } from '@/lib/dates/utils';
+import UserSummaryCard from '@/pages/users/components/UserSummaryCard';
 
 interface AdminBookingProps {
     selectedTimeSlots: Dayjs[];
@@ -121,6 +121,7 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
             onError: (error) => {
                 notifications.show({
                     title: 'Error',
+                    icon: <IconExclamationCircle size={16} />,
                     message: error.message,
                     color: 'red',
                 });
@@ -185,6 +186,11 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
             h="calc(var(--drawer-height) - 5rem)"
             className="flex flex-col gap-4"
         >
+            <LoadingOverlay
+                visible={createBooking.isPending}
+                zIndex={1000}
+                overlayProps={{ radius: 'sm', blur: 2 }}
+            />
             <Stepper
                 active={active}
                 className="flex-grow-1"
@@ -212,20 +218,7 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
                         turf={turf}
                         cardBg="var(--mantine-color-foreground)"
                     />
-                    <Card
-                        withBorder
-                        mt="lg"
-                        bg="var(--mantine-color-foreground)"
-                    >
-                        <Box className="flex items-center gap-2">
-                            <Avatar
-                                name={currentUser?.name}
-                                size="md"
-                                radius="xl"
-                            />
-                            <Title size="h3">{ currentUser && currentUser.name }</Title>
-                        </Box>
-                    </Card>
+                    <UserSummaryCard user={currentUser} />
                 </Stepper.Step>
                 <Stepper.Completed>
                     <Box

@@ -7,6 +7,7 @@ import {
 import {
     Button,
     Divider,
+    LoadingOverlay,
     Text,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -19,6 +20,7 @@ import { useCreateBooking, useUpdateBooking } from '@/store/server/bookings';
 import { fetchPayment } from '@/store/server/payments/endpoints';
 import { createPaymentPayload } from '@/store/server/payments/utils';
 import { BOOKING_STATUS } from '@/store/server/bookings/constants';
+import { IconCancel } from '@tabler/icons-react';
 import { AdvancePaymentCard, BookingSummaryCard, SlotSummaryCard } from './components';
 import { getCurrentPricePerHour } from '../create-turf/utils';
 import { DEFAULT_ADVANCE_PERCENTAGE } from '../create-turf/constants';
@@ -122,6 +124,7 @@ export default function Payment() {
                         notifications.show({
                             title: 'Payment Cancelled',
                             message: 'You have cancelled the payment.',
+                            icon: <IconCancel size={16} />,
                             color: 'red',
                         });
                         await updateBooking.mutateAsync({
@@ -175,6 +178,11 @@ export default function Payment() {
 
     return (
         <div className="flex flex-col grow h-full w-full gap-4">
+            <LoadingOverlay
+                visible={updateBooking.isPending || createBooking.isPending}
+                zIndex={1000}
+                overlayProps={{ radius: 'sm', blur: 2 }}
+            />
             <SlotSummaryCard
                 bookingDetails={bookingDetails}
                 turf={turf}

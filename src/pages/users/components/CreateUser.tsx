@@ -6,7 +6,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconPlus } from '@tabler/icons-react';
+import { IconExclamationCircle, IconPlus } from '@tabler/icons-react';
 import { Timestamp } from 'firebase/firestore';
 
 interface CreateUserProps {
@@ -47,6 +47,7 @@ export default function CreateUser({ onCreate }: CreateUserProps) {
                 notifications.show({
                     title: 'Error',
                     message: error.message,
+                    icon: <IconExclamationCircle size={16} />,
                     color: 'red',
                 });
             },

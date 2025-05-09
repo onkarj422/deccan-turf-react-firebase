@@ -3,14 +3,14 @@ import { useAuth } from '@/context';
 import { useFetchTurfs } from '@/store/server/turfs';
 import {
     Box,
-    Button, Card, Divider, ScrollArea, SimpleGrid,
+    Button, Card, Divider, LoadingOverlay, ScrollArea, SimpleGrid,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 
 export default function Turfs() {
     const { user } = useAuth();
-    const { data: turfs } = useFetchTurfs();
+    const { data: turfs, isLoading: isLoadingTurfs } = useFetchTurfs();
     const navigate = useNavigate();
 
     const handleAddTurf = () => {
@@ -27,6 +27,11 @@ export default function Turfs() {
 
     return (
         <div className="flex flex-col grow h-full w-full gap-4">
+            <LoadingOverlay
+                visible={isLoadingTurfs}
+                zIndex={1000}
+                overlayProps={{ radius: 'sm', blur: 2 }}
+            />
             <Card
                 withBorder
                 radius="md"
@@ -60,12 +65,12 @@ export default function Turfs() {
                         <Button
                             tt="uppercase"
                             size="md"
-                            bg="lime"
-                            c="white"
+                            color="lime"
+                            c="lime"
+                            variant="light"
                             leftSection={(
                                 <IconPlus
                                     size={24}
-                                    color="white"
                                 />
                             )}
                             onClick={handleAddTurf}
