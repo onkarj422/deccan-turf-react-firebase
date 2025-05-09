@@ -27,20 +27,27 @@ export default function UserSummaryCard({ user }: { user: User }) {
                 bg="var(--mantine-color-body)"
                 p="sm"
             >
-                <Box
-                    className="flex items-center gap-4"
-                >
-                    <IconPhone
-                        size="24"
-                        stroke={1}
-                    />
-                    <Title
-                        size="xl"
+                {user?.phone && (
+                    <Box
+                        className="flex items-center gap-4"
                         c="lime"
+                        fz="xl"
                     >
-                        {user && user.phone}
-                    </Title>
-                </Box>
+                        <IconPhone
+                            stroke={1}
+                        />
+                        <a
+                            href={`tel:${user.phone}`}
+                            style={{
+                                textDecoration: 'underline',
+                                color: 'inherit',
+                                fontSize: 'inherit',
+                            }}
+                        >
+                            {user.phone}
+                        </a>
+                    </Box>
+                )}
             </Card>
         </Card>
     );
