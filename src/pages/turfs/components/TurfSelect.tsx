@@ -68,7 +68,7 @@ export default function TurfSelect({ onChange, value }: TurfSelectProps) {
                     multiline
                 >
                     {selected ? renderOption(selected) : (
-                        <Input.Placeholder>Pick value</Input.Placeholder>
+                        <Input.Placeholder>Select Turf</Input.Placeholder>
                     )}
                 </InputBase>
             </Combobox.Target>

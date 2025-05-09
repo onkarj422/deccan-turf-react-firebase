@@ -62,7 +62,7 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
         initialValues: {
             bookingId: '',
             userId: '',
-            turfId: turf.turfId,
+            turfId: turf?.turfId,
             slot,
             totalAmount,
             advancePaid: 0,
@@ -137,6 +137,10 @@ export function AdminBooking({ selectedTimeSlots, turf, onBook }: AdminBookingPr
             onBook(createBooking.data);
         }
     };
+
+    if (!turf || !turf.turfId) {
+        return 'Turf not found';
+    }
 
     const primaryActions = {
         0: (

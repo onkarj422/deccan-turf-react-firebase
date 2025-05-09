@@ -69,7 +69,7 @@ export default function UserSelect({ onChange, value }: UserSelectProps) {
                     rightSectionPointerEvents="none"
                 >
                     {selected ? renderOption(selected) : (
-                        <Input.Placeholder>Pick value</Input.Placeholder>
+                        <Input.Placeholder>Select User</Input.Placeholder>
                     )}
                 </InputBase>
             </Combobox.Target>
