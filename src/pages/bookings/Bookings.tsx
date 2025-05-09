@@ -38,6 +38,9 @@ export default function Bookings() {
                 onChange={setSelectedTurf}
             />,
         );
+        return () => {
+            setHeaderSlot(null);
+        };
     }, [setHeaderSlot, selectedTurf, setSelectedTurf]);
 
     const handleOnBook = () => {

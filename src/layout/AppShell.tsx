@@ -109,7 +109,7 @@ export default function Shell() {
                             c="dimmed"
                             ml="auto"
                         >
-                            Version: 3
+                            Version: 4
                         </Text>
                     </Box>
                 </AppShell.Navbar>
